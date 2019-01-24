@@ -1,13 +1,18 @@
 #!/usr/bin/env bash
 
+if [ $# == 0 ]; then
+    exit 3
+fi
+
 APP_DIR=`pwd`
+PRJ_NAME="${!#}"
 AUTHOR=`whoami`
 
-if [[ -d "$APP_DIR/app" ]]; then
-    APP_DIR="$APP_DIR/app"
+if [[ -d "$APP_DIR/$PRJ_NAME/app" ]]; then
+    APP_DIR="$APP_DIR/$PRJ_NAME/app"
 else
-  mkdir "$APP_DIR/app"
-  APP_DIR="$APP_DIR/app"
+    mkdir -p "$APP_DIR/$PRJ_NAME/app"
+    APP_DIR="$APP_DIR/$PRJ_NAME/app"
 fi
 
 cat > "$APP_DIR/.bash_cli" <<EOT
@@ -18,4 +23,4 @@ cat > "$APP_DIR/.author" <<EOT
 $AUTHOR
 EOT
 
->&2 echo "Initialized Bash CLI project."
+>&2 echo "Initialized Bash CLI project: $PRJ_NAME."

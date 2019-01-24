@@ -1,0 +1,8 @@
+PROJECT  - The full name of the project you wish to create.
+           Example: new_project
+
+This will create a project structure for new Bash CLI projects
+we're creating. It will create the <project> directory, with
+the app/ directory inside it. The app directory will contain
+the .bash_cli file and a default .author file (default author
+name is the `whoami` command output).

@@ -1,5 +1,5 @@
 COMMAND  - The full name of the command you wish to create.
-           Example: new command
+           Example: new_command
 
 This will create the files required to fully describe a command
 to Bash CLI, specifically the <command>, <command>.usage and

@@ -40,6 +40,8 @@ cat > "$CMD_DIR/$CMD_NAME" <<EOT
 echo -e "\033[36mTODO\033[39m: Implement this command"
 EOT
 
+chmod +x "$CMD_DIR/$CMD_NAME"
+
 echo "ARGS..." > "$CMD_DIR/$CMD_NAME.usage"
 cat > "$CMD_DIR/$CMD_NAME.help" <<EOT
 ARGS  - The arguments you wish to provide to this command

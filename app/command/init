@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+APP_DIR=`pwd`
+AUTHOR=`whoami`
+
+if [[ -d "$APP_DIR/app" ]]; then
+    APP_DIR="$APP_DIR/app"
+else
+  mkdir "$APP_DIR/app"
+  APP_DIR="$APP_DIR/app"
+fi
+
+cat > "$APP_DIR/.bash_cli" <<EOT
+v1
+EOT
+
+cat > "$APP_DIR/.author" <<EOT
+$AUTHOR
+EOT
+
+>&2 echo "Initialized Bash CLI project."

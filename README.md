@@ -11,16 +11,26 @@ BCL is a modification of that.
 
 ## Installation
 
+When installing
+
 ```sh
-./cli install
+git clone git@github.com:sdsdkkk/bcl.git
+cd bcl
+./cli setup install
+```
+
+When uninstalling.
+
+```sh
+./cli setup uninstall
 ```
 
 ## Example Usage
 
 ```sh
-bcl command init my-project
+bcl init my-project
 cd my-project
-bcl command create test-command
+bcl create test-command
 ```
 
 ## Customizing Bash CLI

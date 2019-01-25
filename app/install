@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
 
-if [ $# == 0 ]; then
-    exit 3
-fi
-
 APP_DIR=`pwd`
+NAME=bcl
+
+INSTALLATION_DIR="$HOME/.local/bin"
+BASH_COMPLETION_FILE="$HOME/.bash_completion"
+BASH_COMPLETION_DIR="$HOME/.bash_completion.d"
+USER=`echo $HOME | sed -e 's/\/.*\///g'`
 
 if [[ -f "$APP_DIR/.bash_cli" ]]; then
     APP_DIR=`dirname "$APP_DIR"`
@@ -16,11 +18,28 @@ if [[ ! -f "$APP_DIR/app/.bash_cli" ]]; then
     exit 1
 fi
 
-NAME="$1"
-FOLDER="${2-"/usr/bin"}"
+if [[ ! -d "$INSTALLATION_DIR" ]]; then
+    mkdir -p "$INSTALLATION_DIR"
+fi
 
-ln -s "$APP_DIR/cli" "$FOLDER/$NAME"
-cat > "/etc/bash_completion.d/$NAME" <<EOC
+if [[ ! -d "$BASH_COMPLETION_DIR" ]]; then
+    mkdir -p "$BASH_COMPLETION_DIR"
+fi
+
+ln -s "$APP_DIR/cli" "$INSTALLATION_DIR/$NAME"
+cat > "$BASH_COMPLETION_DIR/$NAME" <<EOC
 source "$APP_DIR/complete"
 complete -F _bash_cli $NAME
 EOC
+chown -R $USER:$USER $BASH_COMPLETION_DIR
+
+if [[ -f "$BASH_COMPLETION_FILE" ]]; then
+    exit 1
+fi
+
+cat > "$BASH_COMPLETION_FILE" <<EOC
+for BCFILE in ~/.bash_completion.d/* ; do
+source \$BCFILE
+done
+EOC
+chown $USER:$USER $BASH_COMPLETION_FILE

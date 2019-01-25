@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 
-if [ $# == 0 ]; then
-    exit 3
-fi
-
 APP_DIR=`pwd`
+BASH_COMPLETION_DIR="$HOME/.bash_completion.d"
+
+NAME=bcl
+INSTALLATION_DIR="$HOME/.local/bin"
 
 if [[ -f "$APP_DIR/.bash_cli" ]]; then
     APP_DIR=`dirname "$APP_DIR"`
@@ -16,15 +16,12 @@ if [[ ! -f "$APP_DIR/app/.bash_cli" ]]; then
     exit 1
 fi
 
-NAME="$1"
-FOLDER="${2-"/usr/bin"}"
-
-if [[ ! -f "$FOLDER/$NAME" ]]; then
+if [[ ! -f "$INSTALLATION_DIR/$NAME" ]]; then
     >&2 echo -e "\033[31mCommand \033[36m$1\033[31m did not exist in \033[36m$2\033[39m"
     exit 1
 fi
 
-LN_PATH=`perl -e 'use Cwd "abs_path"; print abs_path(shift)' "$FOLDER/$NAME"`
+LN_PATH=`perl -e 'use Cwd "abs_path"; print abs_path(shift)' "$INSTALLATION_DIR/$NAME"`
 
 if [[ "$LN_PATH" != "$APP_DIR/cli" ]]; then
     >&2 echo -e "\033[31mCommand \033[36m$1\033[31m doesn't resolve to this project\033[39m"
@@ -33,4 +30,5 @@ if [[ "$LN_PATH" != "$APP_DIR/cli" ]]; then
     exit 1
 fi
 
-rm "$FOLDER/$NAME"
+rm "$INSTALLATION_DIR/$NAME"
+rm "$BASH_COMPLETION_DIR/$NAME"

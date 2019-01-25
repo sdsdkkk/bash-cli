@@ -7,7 +7,14 @@ fi
 CUR_DIR=`pwd`
 APP_DIR="$CUR_DIR"
 PRJ_NAME="${!#}"
+AUTOCOMPLETE_DIR="$CUR_DIR/$PRJ_NAME/app/autocomplete"
 AUTHOR=`whoami`
+
+mkdir -p "$CUR_DIR/$PRJ_NAME/framework"
+cp $(ls -alh $HOME/.local/bin/bcl | awk '{print $11}' | sed 's/\/cli/\/framework\//g')* "$CUR_DIR/$PRJ_NAME/framework"
+
+sed -i "s/{{ function_name }}/_bash_cli_$PRJ_NAME/g" "$CUR_DIR/$PRJ_NAME/framework/complete"
+sed -i "s~{{ root_dir }}~$CUR_DIR/$PRJ_NAME/framework~g" "$CUR_DIR/$PRJ_NAME/framework/cli"
 
 if [[ -d "$CUR_DIR/$PRJ_NAME/app" ]]; then
     APP_DIR="$APP_DIR/$PRJ_NAME/app"
@@ -32,6 +39,11 @@ cat > "$APP_DIR/.help" <<EOT
 LOREM IPSUM DOLOR SIT AMET
 EOT
 
+cat > "$HOME/.bash_completion.d/$PRJ_NAME" <<EOC
+source "$CUR_DIR/$PRJ_NAME/framework/complete"
+complete -F _bash_cli_$PRJ_NAME $PRJ_NAME
+EOC
+
 >&2 echo "Initialized Bash CLI project: $PRJ_NAME."
 
 if [[ -f "$CUR_DIR/$PRJ_NAME/$PRJ_NAME-ctl" ]]; then
@@ -40,8 +52,11 @@ fi
 
 cat > "$CUR_DIR/$PRJ_NAME/$PRJ_NAME-ctl" <<EOT
 #!/usr/bin/env bash
-echo -e "\033[36mTODO\033[39m: Implement this command"
-# source "app/..."
+source framework/cli
+source framework/complete
+source framework/help
+source framework/utils
+cli "\$@"
 EOT
 
 chmod +x "$CUR_DIR/$PRJ_NAME/$PRJ_NAME-ctl"

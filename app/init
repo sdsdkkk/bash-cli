@@ -22,6 +22,12 @@ else
     APP_DIR="$APP_DIR/$PRJ_NAME/app"
 fi
 
+mkdir -p "$APP_DIR/autocomplete"
+cp $(ls -alh $HOME/.local/bin/bcl | awk '{print $11}' | sed 's/\/cli/\/autocomplete\//g')* "$APP_DIR/autocomplete"
+
+sed -i "s/{{ project_name }}/$PRJ_NAME/g" "$APP_DIR/autocomplete/apply"
+sed -i "s/{{ project_name }}/$PRJ_NAME/g" "$APP_DIR/autocomplete/remove"
+
 cat > "$APP_DIR/.bash_cli" <<EOT
 v1
 EOT
@@ -49,13 +55,13 @@ if [[ -f "$CUR_DIR/$PRJ_NAME/$PRJ_NAME-ctl" ]]; then
     exit 1
 fi
 
-cat > "$CUR_DIR/$PRJ_NAME/$PRJ_NAME-ctl" <<EOT
+cat > "$CUR_DIR/$PRJ_NAME/$PRJ_NAME-ctl" <<EOC
 #!/usr/bin/env bash
 source framework/cli
 source framework/complete
 source framework/help
 source framework/utils
 cli "\$@"
-EOT
+EOC
 
 chmod +x "$CUR_DIR/$PRJ_NAME/$PRJ_NAME-ctl"

@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+
+CUR_DIR=`pwd`
+APP_DIR="$CUR_DIR"
+PRJ_NAME="{{ project_name }}"
+AUTOCOMPLETE_DIR="$CUR_DIR/$PRJ_NAME/app/autocomplete"
+AUTHOR=`whoami`
+
+mkdir -p "$CUR_DIR/$PRJ_NAME/framework"
+cp $(ls -alh $HOME/.local/bin/bcl | awk '{print $11}' | sed 's/\/cli/\/framework\//g')* "$CUR_DIR/$PRJ_NAME/framework"
+
+sed -i "s/{{ function_name }}/_bash_cli_$PRJ_NAME-ctl/g" "$CUR_DIR/$PRJ_NAME/framework/complete"
+
+if [[ -d "$CUR_DIR/$PRJ_NAME/app" ]]; then
+    APP_DIR="$APP_DIR/$PRJ_NAME/app"
+else
+    mkdir -p "$APP_DIR/$PRJ_NAME/app"
+    APP_DIR="$APP_DIR/$PRJ_NAME/app"
+fi
+
+cat > "$HOME/.bash_completion.d/$PRJ_NAME-ctl" <<EOC
+source "$CUR_DIR/framework/complete"
+complete -F _bash_cli_$PRJ_NAME-ctl $PRJ_NAME-ctl
+EOC
+
+if [[ -f "$CUR_DIR/$PRJ_NAME/$PRJ_NAME-ctl" ]]; then
+    exit 1
+fi

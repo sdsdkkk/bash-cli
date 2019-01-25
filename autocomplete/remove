@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+PRJ_NAME="{{ project_name }}"
+
+if [[ -f "$HOME/.bash_completion.d/$PRJ_NAME-ctl" ]]; then
+    rm "$HOME/.bash_completion.d/$PRJ_NAME-ctl"
+fi

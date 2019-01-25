@@ -14,6 +14,8 @@ mkdir -p "$CUR_DIR/$PRJ_NAME/framework"
 cp $(ls -alh $HOME/.local/bin/bcl | awk '{print $11}' | sed 's/\/cli/\/framework\//g')* "$CUR_DIR/$PRJ_NAME/framework"
 
 sed -i "s/{{ function_name }}/_bash_cli_$PRJ_NAME-ctl/g" "$CUR_DIR/$PRJ_NAME/framework/complete"
+sed -i "s/{{ project_name }}/$PRJ_NAME/g" "$CUR_DIR/$PRJ_NAME/framework/complete"
+sed -i "s/{{ project_name }}/$PRJ_NAME/g" "$CUR_DIR/$PRJ_NAME/framework/cli"
 
 if [[ -d "$CUR_DIR/$PRJ_NAME/app" ]]; then
     APP_DIR="$APP_DIR/$PRJ_NAME/app"
@@ -55,13 +57,13 @@ if [[ -f "$CUR_DIR/$PRJ_NAME/$PRJ_NAME-ctl" ]]; then
     exit 1
 fi
 
-cat > "$CUR_DIR/$PRJ_NAME/$PRJ_NAME-ctl" <<EOC
+cat > "$CUR_DIR/$PRJ_NAME-ctl" <<EOC
 #!/usr/bin/env bash
-source framework/cli
-source framework/complete
-source framework/help
-source framework/utils
+source $PRJ_NAME/framework/cli
+source $PRJ_NAME/framework/complete
+source $PRJ_NAME/framework/help
+source $PRJ_NAME/framework/utils
 cli "\$@"
 EOC
 
-chmod +x "$CUR_DIR/$PRJ_NAME/$PRJ_NAME-ctl"
+chmod +x "$CUR_DIR/$PRJ_NAME-ctl"

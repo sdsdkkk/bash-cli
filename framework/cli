@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
 APP_DIR=`dirname "$(perl -e 'use Cwd "abs_path"; print abs_path(shift)' $0)"`
+PRJ_NAME="{{ project_name }}"
+APP_DIR="$APP_DIR/$PRJ_NAME"
 ROOT_DIR="$APP_DIR/framework"
 CLI_ENTRYPOINT=`basename $0`
 

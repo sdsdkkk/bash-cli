@@ -3,7 +3,9 @@
 
 function {{ function_name }}() {
     local root_dir;
+    local project_name={{ project_name }};
     root_dir=`dirname "$(perl -e 'use Cwd "abs_path"; print abs_path(shift)' "$(which ${COMP_WORDS[0]})")"`
+    root_dir="$root_dir/$project_name"
 
     local curr_arg;
     curr_arg="${COMP_WORDS[COMP_CWORD]}"

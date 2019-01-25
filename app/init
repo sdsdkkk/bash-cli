@@ -4,11 +4,12 @@ if [ $# == 0 ]; then
     exit 3
 fi
 
-APP_DIR=`pwd`
+CUR_DIR=`pwd`
+APP_DIR="$CUR_DIR"
 PRJ_NAME="${!#}"
 AUTHOR=`whoami`
 
-if [[ -d "$APP_DIR/$PRJ_NAME/app" ]]; then
+if [[ -d "$CUR_DIR/$PRJ_NAME/app" ]]; then
     APP_DIR="$APP_DIR/$PRJ_NAME/app"
 else
     mkdir -p "$APP_DIR/$PRJ_NAME/app"
@@ -32,3 +33,15 @@ LOREM IPSUM DOLOR SIT AMET
 EOT
 
 >&2 echo "Initialized Bash CLI project: $PRJ_NAME."
+
+if [[ -f "$CUR_DIR/$PRJ_NAME/$PRJ_NAME-ctl" ]]; then
+    exit 1
+fi
+
+cat > "$CUR_DIR/$PRJ_NAME/$PRJ_NAME-ctl" <<EOT
+#!/usr/bin/env bash
+echo -e "\033[36mTODO\033[39m: Implement this command"
+# source "app/..."
+EOT
+
+chmod +x "$CUR_DIR/$PRJ_NAME/$PRJ_NAME-ctl"

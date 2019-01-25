@@ -23,4 +23,12 @@ cat > "$APP_DIR/.author" <<EOT
 $AUTHOR
 EOT
 
+cat > "$APP_DIR/.version" <<EOT
+0.1
+EOT
+
+cat > "$APP_DIR/.help" <<EOT
+LOREM IPSUM DOLOR SIT AMET
+EOT
+
 >&2 echo "Initialized Bash CLI project: $PRJ_NAME."

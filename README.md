@@ -1,17 +1,26 @@
-# Bash CLI
-**A command line framework built using nothing but Bash and compatible with anything**
+# BCL
+
+Derivation of SierraSoftworks' [Bash CLI](https://github.com/SierraSoftworks/bash-cli).
 
 Bash CLI was borne of the need to provide a common entrypoint into a range of scripts
 and tools for a project. Rather than port the scripts to something like Go or Python,
 or merge them into a single bash script, we opted to build a framework which allows
 and executable to be presented as a sub-command.
 
-## Example
+BCL is a modification of that.
+
+## Installation
 
 ```sh
-bash-cli install my-app
-bash-cli command create start
-my-app start
+./cli install
+```
+
+## Example Usage
+
+```sh
+bcl command init my-project
+cd my-project
+bcl command create test-command
 ```
 
 ## Customizing Bash CLI
@@ -52,26 +61,3 @@ provide a bit of additional context around how it works, when you should use it 
 
 In addition to providing help for commands, you may also provide it for directories to explain what
 their sub-commands are intended to achieve. To do this, simply add a `.help` file to the directory.
-
-## Autocomplete
-Autocomplete functionality has been added to make navigating the command line even easier than it
-was before. To install it, simply add the following to `/etc/bash_completion.d/my-app`.
-
-```sh
-source "/opt/my-app/complete"
-complete -F _bash_cli my-app
-```
-
-## Frequently Asked Questions
-
-1. **Can I use Bash CLI to run things which aren't bash scripts?**
-   Absolutely, Bash CLI simply executes files - it doesn't care whether they're written in Bash, Ruby,
-   Python or Go - if you can execute the file then you can use it with Bash CLI.
-
-1. **Will Bash CLI work on my Mac?**
-   It should, we've built everything to keep it as portable as possible, so if you do have a problem
-   don't hesitate to open a bug report.
-
-1. **Does it allow me to use tab-autocomplete?**
-   As of the latest version, yes it does. The install command included in this repo will automatically
-   set up your `/etc/bash_completion.d/` directory to provide support for your project. 

@@ -7,6 +7,7 @@ fi
 CUR_DIR=`pwd`
 APP_DIR="$CUR_DIR"
 PRJ_NAME="${!#}"
+SUFFIX="ctl"
 AUTOCOMPLETE_DIR="$CUR_DIR/$PRJ_NAME/app/autocomplete"
 AUTHOR=`whoami`
 
@@ -16,7 +17,7 @@ mkdir -p "$CUR_DIR/$PRJ_NAME/framework"
 mkdir -p "$CUR_DIR/$PRJ_NAME/playbook"
 cp $(ls -alh $HOME/.local/bin/bcl | awk '{print $11}' | sed 's/\/cli/\/framework\//g')* "$CUR_DIR/$PRJ_NAME/framework"
 
-sed -i "s/{{ function_name }}/_bash_cli_$PRJ_NAME-ctl/g" "$CUR_DIR/$PRJ_NAME/framework/complete"
+sed -i "s/{{ function_name }}/_bash_cli_$PRJ_NAME$SUFFIX/g" "$CUR_DIR/$PRJ_NAME/framework/complete"
 sed -i "s/{{ project_name }}/$PRJ_NAME/g" "$CUR_DIR/$PRJ_NAME/framework/complete"
 sed -i "s/{{ project_name }}/$PRJ_NAME/g" "$CUR_DIR/$PRJ_NAME/framework/cli"
 
@@ -49,18 +50,18 @@ cat > "$APP_DIR/.help" <<EOT
 LOREM IPSUM DOLOR SIT AMET
 EOT
 
-cat > "$HOME/.bash_completion.d/$PRJ_NAME-ctl" <<EOC
+cat > "$HOME/.bash_completion.d/$PRJ_NAME$SUFFIX" <<EOC
 source "$CUR_DIR/$PRJ_NAME/framework/complete"
-complete -F _bash_cli_$PRJ_NAME-ctl $PRJ_NAME-ctl
+complete -F _bash_cli_$PRJ_NAME$SUFFIX $PRJ_NAME$SUFFIX
 EOC
 
 >&2 echo "Initialized Bash CLI project: $PRJ_NAME."
 
-if [[ -f "$CUR_DIR/$PRJ_NAME/$PRJ_NAME-ctl" ]]; then
+if [[ -f "$CUR_DIR/$PRJ_NAME/$PRJ_NAME$SUFFIX" ]]; then
     exit 1
 fi
 
-cat > "$CUR_DIR/$PRJ_NAME-ctl" <<EOC
+cat > "$CUR_DIR/$PRJ_NAME$SUFFIX" <<EOC
 #!/usr/bin/env bash
 source $PRJ_NAME/framework/cli
 source $PRJ_NAME/framework/complete
@@ -69,4 +70,4 @@ source $PRJ_NAME/framework/utils
 cli "\$@"
 EOC
 
-chmod +x "$CUR_DIR/$PRJ_NAME-ctl"
+chmod +x "$CUR_DIR/$PRJ_NAME$SUFFIX"

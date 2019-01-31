@@ -10,7 +10,10 @@ PRJ_NAME="${!#}"
 AUTOCOMPLETE_DIR="$CUR_DIR/$PRJ_NAME/app/autocomplete"
 AUTHOR=`whoami`
 
+mkdir -p "$CUR_DIR/$PRJ_NAME/blueprint"
+mkdir -p "$CUR_DIR/$PRJ_NAME/files"
 mkdir -p "$CUR_DIR/$PRJ_NAME/framework"
+mkdir -p "$CUR_DIR/$PRJ_NAME/playbook"
 cp $(ls -alh $HOME/.local/bin/bcl | awk '{print $11}' | sed 's/\/cli/\/framework\//g')* "$CUR_DIR/$PRJ_NAME/framework"
 
 sed -i "s/{{ function_name }}/_bash_cli_$PRJ_NAME-ctl/g" "$CUR_DIR/$PRJ_NAME/framework/complete"

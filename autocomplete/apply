@@ -7,7 +7,7 @@ SUFFIX="ctl"
 AUTHOR=`whoami`
 
 cat > "$HOME/.bash_completion.d/$PRJ_NAME$SUFFIX" <<EOC
-source "$CUR_DIR/framework/complete"
+source "$CUR_DIR/$PRJ_NAME/framework/complete"
 complete -F _bash_cli_$PRJ_NAME$SUFFIX $PRJ_NAME$SUFFIX
 EOC
 

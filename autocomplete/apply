@@ -4,7 +4,6 @@ CUR_DIR=`pwd`
 APP_DIR="$CUR_DIR"
 PRJ_NAME="{{ project_name }}"
 SUFFIX="ctl"
-AUTHOR=`whoami`
 
 cat > "$HOME/.bash_completion.d/$PRJ_NAME$SUFFIX" <<EOC
 source "$CUR_DIR/$PRJ_NAME/framework/complete"

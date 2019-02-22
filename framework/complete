@@ -49,10 +49,12 @@ function {{ function_name }}() {
     # available within it, as well as the `help` virtual command.
     elif [ -d "$cmd_file" ]; then
         local opts=("help")
-        while IFS= read -d $'\0' -r file ; do
+        local file_list=(`find $cmd_file/ -maxdepth 1 ! -path $cmd_file/ ! -iname '*.*' -print`)
+
+        for file in "${file_list[@]}"; do
             opts=("${opts[@]}" `basename $file`)
-        done < <(find $cmd_file/ -maxdepth 1 ! -path $cmd_file/ ! -iname '*.*' -print0)
-        
+        done
+
         IFS="
         "
         COMPREPLY=(`compgen -W "$(printf '%s\n' "${opts[@]}")" -- "$curr_arg"`)

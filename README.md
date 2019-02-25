@@ -17,6 +17,14 @@ When installing
 git clone git@github.com:sdsdkkk/bcl.git
 cd bcl
 ./cli setup install
+
+# Enable autocomplete for zsh
+cat <<EOF >> ~/.zshrc
+# BCL autocomplete
+autoload -U +X compinit && compinit
+autoload -U +X bashcompinit && bashcompinit
+source ~/.bash_completion
+EOF
 ```
 
 When uninstalling.

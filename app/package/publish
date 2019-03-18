@@ -11,6 +11,11 @@ RELEASE_REPOSITORY=''
 EXECUTABLE_SUFFIX='ctl'
 TMP_DIR="$HOME/.bcltmp"
 
+if [[ ! -d "$APP_DIR/$PACKAGE_NAME" ]]; then
+    >&2 echo -e "\033[31mProject '$PACKAGE_NAME' not found\033[39m"
+    exit 3
+fi
+
 if [[ -f "$APP_DIR/$PACKAGE_NAME/BUILD" ]]; then
     PACKAGE_RELEASE_TAG=`head -n 1 $APP_DIR/$PACKAGE_NAME/BUILD`
     RELEASE_REPOSITORY=`tail -n 1 $APP_DIR/$PACKAGE_NAME/BUILD`

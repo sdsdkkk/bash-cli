@@ -1,0 +1,111 @@
+#!/usr/bin/env bash
+
+DEFAULT_VERSION="latest"
+DEFAULT_CHANNEL="release"
+
+# get_package_canonical_name formats package name, version, and channel into a
+# canonical name
+get_package_canonical_name() {
+    package_name=$1
+    package_version=$2
+    package_channel=$3
+
+    echo "$1-v$2-$3"
+}
+
+# get_package_name parses a package's name from its canonical name
+get_package_name() {
+    echo $1 | awk '{split($0,a,/-v[0-9]+\.[0-9]+\.[0-9]+-/); print a[1]}'
+}
+
+# get_package_version parses a package's numerical version from its canonical
+# name
+get_package_version() {
+    version=$(echo $1 | grep -Po 'v[0-9]+\.[0-9]+\.[0-9]+' | grep -Po '[0-9.]+')
+
+    if [[ -z "$version" ]]; then
+        echo $DEFAULT_VERSION
+    else
+        echo "$version"
+    fi
+}
+
+# get_package_channel parses a package's release channel from its canonical name
+get_package_channel() {
+    channel=$(echo $1 | awk '{split($0,a,/-v[0-9]+\.[0-9]+\.[0-9]+-/); print a[2]}')
+
+    if [[ -z "$channel" ]]; then
+        echo $DEFAULT_CHANNEL
+    else
+        echo "$channel"
+    fi
+}
+
+# get_latest_version fetches the latest numerical version of a package from the
+# repository
+get_latest_version() {
+    release_repo=$1
+    package_name=$2
+    package_channel=$3
+
+    if [[ -z "$package_channel" ]]; then
+        package_channel=$DEFAULT_CHANNEL
+    fi
+
+    output="$(git ls-remote "$release_repo")"
+
+    if [ "$?" != "0" ]; then
+        echo "$output" >&2
+        exit 1
+    fi
+
+    branches="$(echo "$output" | awk '{print $2}' | grep -e "refs/heads/$package_name-" | grep -e "-$package_channel" | sort -V)"
+
+    if [[ -z "$branches" ]]; then
+        echo "Package $package_name of channel $package_channel not found" >&2
+        exit 1
+    fi
+
+    latest_branch=$(echo "$branches" | tail -n 1)
+    latest_release=${latest_branch#"refs/heads/"}
+
+    echo $(get_package_version "$latest_release")
+}
+
+# install_package installs a package
+install_package() {
+    release_repo=$1
+    package_canonical_name=$2
+    install_dir=$3
+    install_mode=$4
+
+    if [[ -z "$install_mode" ]]; then
+        install_mode="default"
+    fi
+
+    echo "$release_repo" "$package_canonical_name" "$install_dir"
+
+    package_name=$(get_package_name $package_canonical_name)
+
+    if [ install_mode != "force" ] && [[ -d "$install_dir/cli/$package_name" && -f "$install_dir/cli/$package_name/BUILD" ]]; then
+        installed_package=`head -n 1 $install_dir/cli/$package_name/BUILD`
+
+        if [ $package_canonical_name == $installed_package  ]; then
+            echo $package_canonical_name already installed
+            return
+        fi
+    fi
+
+    echo "Installing $package_canonical_name..."
+
+    mkdir -p "$install_dir/cli"
+
+    clone_dir="/tmp/.bcl-$package_canonical_name"
+
+    rm -rf "$clone_dir"
+    git clone -b "$package_canonical_name" "$release_repo" --depth 1 "$clone_dir"
+
+    rm -rf "$install_dir/cli/$package_name"
+    cp -R  "$clone_dir"/* "$install_dir/cli"
+    rm -rf "$clone_dir"
+}

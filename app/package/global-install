@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+
+set -e
+
+source $ROOT_DIR/app/.helper/package
+
+INSTALL_DIRECTORY="$HOME/.bcl"
+
+# parse_args parses positional arguments
+parse_args() {
+    REPOSITORY=$1
+    PACKAGE=$2
+
+    if [[ -z "$PACKAGE" ]]; then
+        exit 3
+    fi
+
+    if [[ -z "$REPOSITORY" ]]; then
+        exit 3
+    fi
+}
+
+main() {
+    parse_args "$@"
+
+    package_name=$(get_package_name $PACKAGE)
+    package_version=$(get_package_version $PACKAGE)
+    package_channel=$(get_package_channel $PACKAGE)
+
+    # Fetch latest version of the package from git
+    if [ "$package_version" == "latest" ]; then
+        echo "Fetching latest version of $package_name..."
+        package_version=`get_latest_version "$REPOSITORY" "$package_name"`
+    fi
+
+    # Install the package
+    package_canonical_name=$(get_package_canonical_name "$package_name" "$package_version" "$package_channel")
+    install_package "$REPOSITORY" "$package_canonical_name" "$INSTALL_DIRECTORY"
+
+    echo "Finsished installing $package_canonical_name"
+
+    # Check the PATH environment variable
+    echo "$PATH" | grep -e "$INSTALL_DIRECTORY/cli" > /dev/null 2>&1
+    if [ "$?" != "0" ]; then
+        echo ""
+
+        echo "Please add '$INSTALL_DIRECTORY/cli' into your \$PATH variable" \
+             "(without the quote). You can do this by adding this line to" \
+             "your ~/.bashrc or ~/.zshrc file:" | fold -sw80
+
+        echo "    " "export PATH=\"$INSTALL_DIRECTORY/cli:\$PATH\""
+    fi
+}
+
+main "$@"

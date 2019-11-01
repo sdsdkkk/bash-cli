@@ -7,6 +7,12 @@ function {{ function_name }}() {
     root_dir=`dirname "$(perl -e 'use Cwd "abs_path"; print abs_path(shift)' "$(which ${COMP_WORDS[0]})")"`
     root_dir="$root_dir/$project_name"
 
+    # If the project directory is not found, then the command might be called as
+    # a global command
+    if [[ ! -d "$root_dir" ]]; then
+        root_dir="$HOME/.bcl/cli/$project_name"
+    fi
+
     local curr_arg;
     curr_arg="${COMP_WORDS[COMP_CWORD]}"
     prev_arg="${COMP_WORDS[COMP_CWORD-1]}"

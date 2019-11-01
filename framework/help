@@ -31,6 +31,10 @@ if [[ -d "$HELP_FILE" ]]; then
         echo ""
     fi
 
+    if [[ -f "$HELP_FILE.help.script" ]]; then
+        bash "$HELP_FILE.help.script"
+    fi
+
     echo ""
     echo -e "${COLOR_MAGENTA}Commands${COLOR_NORMAL}"
     echo ""
@@ -39,7 +43,7 @@ if [[ -d "$HELP_FILE" ]]; then
         cmd=`basename "$file"`
 
         # Don't show hidden files as available commands
-        if [[ "$cmd" != .* && "$cmd" != *.usage && "$cmd" != *.help ]]; then
+        if [[ "$cmd" != .* && "$cmd" != *.usage && "$cmd" != *.help && "$cmd" != *.help.script ]]; then
             echo -en "${COLOR_GREEN}$CLI_ENTRYPOINT ${COLOR_CYAN}${@:2:$(($HELP_ARG_START-1))} $cmd ${COLOR_NORMAL}"
 
             if [[ -f "$file.usage" ]]; then
@@ -68,4 +72,8 @@ fi
 if [[ -f "$HELP_FILE.help" ]]; then
     cat "$HELP_FILE.help"
     echo ""
+fi
+
+if [[ -f "$HELP_FILE.help.script" ]]; then
+    bash "$HELP_FILE.help.script"
 fi

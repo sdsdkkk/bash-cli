@@ -68,10 +68,14 @@ fi
 
 cat > "$CUR_DIR/$PRJ_NAME$SUFFIX" <<EOC
 #!/usr/bin/env bash
-source $PRJ_NAME/framework/cli
-source $PRJ_NAME/framework/complete
-source $PRJ_NAME/framework/help
-source $PRJ_NAME/framework/utils
+
+SCRIPT_DIR="\$( cd "\$( dirname "\${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+
+source "\$SCRIPT_DIR/$PRJ_NAME/framework/cli"
+source "\$SCRIPT_DIR/$PRJ_NAME/framework/complete"
+source "\$SCRIPT_DIR/$PRJ_NAME/framework/help"
+source "\$SCRIPT_DIR/$PRJ_NAME/framework/utils"
+
 cli "\$@"
 EOC
 

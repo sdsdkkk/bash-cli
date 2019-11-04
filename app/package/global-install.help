@@ -1,0 +1,9 @@
+Installs a package globally. The installed package can be
+executed from any location. Please note that not all
+packages supports global installation.
+
+Usage:
+  $ bcl global-install REPOSITORY PACKAGE
+
+Example:
+  $ bcl global-install git@github.com:sample-org/sample-repo.git cssh

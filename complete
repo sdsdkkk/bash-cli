@@ -3,7 +3,7 @@
 
 function _bash_cli() {
     local root_dir;
-    root_dir=`dirname "$(perl -e 'use Cwd "abs_path"; print abs_path(shift)' "$(which ${COMP_WORDS[0]})")"`
+    root_dir=`dirname "$(readlink -f "$(which ${COMP_WORDS[0]})")"`
 
     local curr_arg;
     curr_arg="${COMP_WORDS[COMP_CWORD]}"

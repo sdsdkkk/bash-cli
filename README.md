@@ -14,7 +14,7 @@ BCL is a modification of that.
 When installing
 
 ```sh
-git clone git@github.com:sdsdkkk/bcl.git
+git clone git@github.com:cermati/bcl.git
 cd bcl
 ./cli setup install
 

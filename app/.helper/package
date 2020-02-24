@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+source $ROOT_DIR/app/.helper/system
+
 DEFAULT_VERSION="latest"
 DEFAULT_CHANNEL="release"
 
@@ -21,7 +23,7 @@ get_package_name() {
 # get_package_version parses a package's numerical version from its canonical
 # name
 get_package_version() {
-    version=$(echo $1 | grep -Po 'v[0-9]+\.[0-9]+\.[0-9]+' | grep -Po '[0-9.]+')
+    version=$(echo $1 | _grep -Po 'v[0-9]+\.[0-9]+\.[0-9]+' | _grep -Po '[0-9.]+')
 
     if [[ -z "$version" ]]; then
         echo $DEFAULT_VERSION
@@ -59,7 +61,7 @@ get_latest_version() {
         exit 1
     fi
 
-    branches="$(echo "$output" | awk '{print $2}' | grep -e "refs/heads/$package_name-" | grep -e "-$package_channel" | sort -V)"
+    branches="$(echo "$output" | awk '{print $2}' | _grep -e "refs/heads/$package_name-" | _grep -e "-$package_channel" | sort -V)"
 
     if [[ -z "$branches" ]]; then
         echo "Package $package_name of channel $package_channel not found" >&2

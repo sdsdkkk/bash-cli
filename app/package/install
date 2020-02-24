@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -e
+
 APP_DIR=`pwd`
 RELEASE_REPOSITORY=''
 

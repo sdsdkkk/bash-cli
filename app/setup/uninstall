@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+source $ROOT_DIR/app/.helper/system
+
 APP_DIR=`pwd`
 BASH_COMPLETION_DIR="$HOME/.bash_completion.d"
 
@@ -21,7 +23,7 @@ if [[ ! -f "$INSTALLATION_DIR/$NAME" ]]; then
     exit 1
 fi
 
-LN_PATH=`readlink -f "$INSTALLATION_DIR/$NAME"`
+LN_PATH=`_readlink -f "$INSTALLATION_DIR/$NAME"`
 
 if [[ "$LN_PATH" != "$APP_DIR/cli" ]]; then
     >&2 echo -e "\033[31mCommand \033[36m$1\033[31m doesn't resolve to this project\033[39m"

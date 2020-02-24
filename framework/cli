@@ -1,6 +1,44 @@
 #!/usr/bin/env bash
 
-APP_DIR=`dirname "$(readlink -f $0)"`
+# kernel returns the kernel type of the system
+kernel() {
+    uname -s
+}
+
+# _readlink wraps readlink in Linux or greadlink in Mac OS
+_readlink() {
+    if [ $(kernel) == "Linux" ]; then
+        readlink "$@"
+        return $?
+    elif [ $(kernel) == "Darwin" ]; then
+        greadlink "$@"
+        return $?
+    fi
+
+    echo "readlink: invalid kernel name $(kernel)" >&2
+    return 1
+}
+
+# _grep wraps grep in Linux or ggrep in Mac OS
+_grep() {
+    if [ $(kernel) == "Linux" ]; then
+        grep "$@"
+        return $?
+    elif [ $(kernel) == "Darwin" ]; then
+        ggrep "$@"
+        return $?
+    fi
+
+    echo "grep: invalid kernel name $(kernel)" >&2
+    return 1
+}
+
+# Expose these functions to subshells and child processes
+export -f kernel
+export -f _readlink
+export -f _grep
+
+APP_DIR=`dirname "$(_readlink -f $0)"`
 PRJ_NAME="{{ project_name }}"
 APP_DIR="$APP_DIR/$PRJ_NAME"
 ROOT_DIR="$APP_DIR/framework"

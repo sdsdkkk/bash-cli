@@ -1,9 +1,22 @@
 #!/usr/bin/env bash
 
+# _readlink wraps readlink in Linux or greadlink in Mac OS. We need this here
+# since we can't import app/.helper/system yet.
+_readlink() {
+    if [ $(uname -s) == "Linux" ]; then
+        readlink "$@"
+        return $?
+    elif [ $(uname -s) == "Darwin" ]; then
+        greadlink "$@"
+        return $?
+    fi
+
+    echo "Invalid kernel name $(uname -s)" && return 1
+}
 
 function _bash_cli() {
     local root_dir;
-    root_dir=`dirname "$(readlink -f "$(which ${COMP_WORDS[0]})")"`
+    root_dir=`dirname "$(_readlink -f "$(which ${COMP_WORDS[0]})")"`
 
     local curr_arg;
     curr_arg="${COMP_WORDS[COMP_CWORD]}"

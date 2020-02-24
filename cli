@@ -1,6 +1,97 @@
 #!/usr/bin/env bash
 
-export ROOT_DIR=`dirname "$(readlink -f $0)"`
+# Minimum Bash version. Centos 7 Docker container comes with 4.2.46(2)-release,
+# and we will use that as the standard.
+MINIMAL_BASH_VERSION="4.2.0"
+
+# check_dependencies returns non-zero code when one or more dependencies are
+# not fulfilled
+check_dependencies() {
+    _check_bash_version
+    _check_coreutils
+    _check_grep
+}
+
+# _check_bash_version returns non-zero code when the bash version used is
+# too old
+_check_bash_version() {
+    local lowest_vesion=$(echo -e "$BASH_VERSION\n$MINIMAL_BASH_VERSION" | sort -V | head -n1)
+
+    if [ "$lowest_vesion" == "$BASH_VERSION" ]; then
+        echo "Installed Bash version is too old (installed=$BASH_VERSION," \
+            "required=$MINIMAL_BASH_VERSION)" >&2
+
+        if [ $(uname -s) == "Darwin" ]; then
+            echo "You can install newer Bash on Mac OS with:" >&2
+            echo "  $ brew install bash" >&2
+            echo "  $ sudo bash -c 'echo /usr/local/bin/bash >> /etc/shells'" >&2
+            echo "  $ chsh -s /usr/local/bin/bash " >&2
+        fi
+
+        return 1
+    fi
+}
+
+# _check_coreutils returns non-zero code if coreutils is not installed via APT
+# or brew
+_check_coreutils() {
+    local readlink_bin="readlink"
+
+    if [ $(uname -s) == "Darwin" ]; then
+        readlink_bin="greadlink"
+    fi
+
+    # If readlink or greadlink is not available, then coreutils is not installed
+    if ! which "$readlink_bin" > /dev/null; then
+        echo "System package \"coreutils\" is not installed." \
+            "You can install coreutils with:" >&2
+
+        if [ $(uname -s) == "Linux" ]; then
+            echo "  $ sudo apt-get install coreutils" >&2
+        elif [ $(uname -s) == "Darwin" ]; then
+            echo "  $ brew install coreutils" >&2
+        fi
+
+        return 1
+    fi
+}
+
+# _check_grep returns non-zero code if GNU grep is not installed via brew in
+# Mac OS
+_check_grep() {
+    if [ $(uname -s) != "Darwin" ]; then
+        return 0
+    fi
+
+    if ! which ggrep > /dev/null; then
+        echo "System package GNU grep is not installed." \
+            "You can install GNU grep with:" >&2
+        echo "  $ brew install grep" >&2
+
+        return 1
+    fi
+}
+
+if ! check_dependencies; then
+    echo "BCL dependencies not installed" >&2
+    exit 1
+fi
+
+# _readlink wraps readlink in Linux or greadlink in Mac OS. We need this here
+# since we can't import app/.helper/system yet.
+_readlink() {
+    if [ $(uname -s) == "Linux" ]; then
+        readlink "$@"
+        return $?
+    elif [ $(uname -s) == "Darwin" ]; then
+        greadlink "$@"
+        return $?
+    fi
+
+    echo "Invalid kernel name $(uname -s)" && return 1
+}
+
+export ROOT_DIR=`dirname "$(_readlink -f $0)"`
 CLI_ENTRYPOINT=`basename $0`
 
 . "$ROOT_DIR/utils"

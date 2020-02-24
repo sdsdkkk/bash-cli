@@ -22,9 +22,14 @@ $PRJ_NAME-v0.0.0-release
 git@github.com:sample-organization/sample-package.git
 EOC
 
-sed -i "s/{{ function_name }}/_bash_cli_$PRJ_NAME$SUFFIX/g" "$CUR_DIR/$PRJ_NAME/framework/complete"
-sed -i "s/{{ project_name }}/$PRJ_NAME/g" "$CUR_DIR/$PRJ_NAME/framework/complete"
-sed -i "s/{{ project_name }}/$PRJ_NAME/g" "$CUR_DIR/$PRJ_NAME/framework/cli"
+sed -i.bak "s/{{ function_name }}/_bash_cli_$PRJ_NAME$SUFFIX/g" "$CUR_DIR/$PRJ_NAME/framework/complete"
+rm "$CUR_DIR/$PRJ_NAME/framework/complete.bak"
+
+sed -i.bak "s/{{ project_name }}/$PRJ_NAME/g" "$CUR_DIR/$PRJ_NAME/framework/complete"
+rm "$CUR_DIR/$PRJ_NAME/framework/complete.bak"
+
+sed -i.bak "s/{{ project_name }}/$PRJ_NAME/g" "$CUR_DIR/$PRJ_NAME/framework/cli"
+rm "$CUR_DIR/$PRJ_NAME/framework/cli.bak"
 
 if [[ -d "$CUR_DIR/$PRJ_NAME/app" ]]; then
     APP_DIR="$APP_DIR/$PRJ_NAME/app"
@@ -36,8 +41,11 @@ fi
 mkdir -p "$APP_DIR/autocomplete"
 cp $(ls -alh $HOME/.local/bin/bcl | awk '{print $11}' | sed 's/\/cli/\/autocomplete\//g')* "$APP_DIR/autocomplete"
 
-sed -i "s/{{ project_name }}/$PRJ_NAME/g" "$APP_DIR/autocomplete/apply"
-sed -i "s/{{ project_name }}/$PRJ_NAME/g" "$APP_DIR/autocomplete/remove"
+sed -i.bak "s/{{ project_name }}/$PRJ_NAME/g" "$APP_DIR/autocomplete/apply"
+rm "$APP_DIR/autocomplete/apply.bak"
+
+sed -i.bak "s/{{ project_name }}/$PRJ_NAME/g" "$APP_DIR/autocomplete/remove"
+rm "$APP_DIR/autocomplete/remove.bak"
 
 cat > "$APP_DIR/.bash_cli" <<EOT
 v1

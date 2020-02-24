@@ -3,6 +3,7 @@
 set -e
 
 source $ROOT_DIR/app/.helper/package
+source $ROOT_DIR/app/.helper/system
 
 INSTALL_DIRECTORY="$HOME/.bcl"
 
@@ -40,8 +41,7 @@ main() {
     echo "Finished installing $package_canonical_name"
 
     # Check the PATH environment variable
-    echo "$PATH" | grep -e "$INSTALL_DIRECTORY/cli" > /dev/null 2>&1
-    if [ "$?" != "0" ]; then
+    if ! echo "$PATH" | _grep -e "$INSTALL_DIRECTORY/cli" > /dev/null 2>&1; then
         echo ""
 
         echo "Please add '$INSTALL_DIRECTORY/cli' into your \$PATH variable" \

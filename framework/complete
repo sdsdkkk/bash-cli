@@ -1,10 +1,22 @@
 #!/usr/bin/env bash
 
+# _readlink wraps readlink in Linux or greadlink in Mac OS.
+_readlink() {
+    if [ $(uname -s) == "Linux" ]; then
+        readlink "$@"
+        return $?
+    elif [ $(uname -s) == "Darwin" ]; then
+        greadlink "$@"
+        return $?
+    fi
+
+    echo "Invalid kernel name $(uname -s)" && return 1
+}
 
 function {{ function_name }}() {
     local root_dir;
     local project_name={{ project_name }};
-    root_dir=`dirname "$(readlink -f "$(which ${COMP_WORDS[0]})")"`
+    root_dir=`dirname "$(_readlink -f "$(which ${COMP_WORDS[0]})")"`
     root_dir="$root_dir/$project_name"
 
     # If the project directory is not found, then the command might be called as

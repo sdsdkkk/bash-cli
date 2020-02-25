@@ -46,6 +46,9 @@ rm "$CUR_DIR/$PRJ_NAME/framework/complete.bak"
 sed -i.bak "s/{{ project_name }}/$PRJ_NAME/g" "$CUR_DIR/$PRJ_NAME/framework/complete"
 rm "$CUR_DIR/$PRJ_NAME/framework/complete.bak"
 
+sed -i.bak "s/{{ project_name }}/$PRJ_NAME/g" "$CUR_DIR/$PRJ_NAME/framework/help"
+rm "$CUR_DIR/$PRJ_NAME/framework/help.bak"
+
 sed -i.bak "s/{{ project_name }}/$PRJ_NAME/g" "$CUR_DIR/$PRJ_NAME/framework/cli"
 rm "$CUR_DIR/$PRJ_NAME/framework/cli.bak"
 
@@ -67,5 +70,12 @@ rm "$APP_DIR/autocomplete/apply.bak"
 
 sed -i.bak "s/{{ project_name }}/$PRJ_NAME/g" "$APP_DIR/autocomplete/remove"
 rm "$APP_DIR/autocomplete/remove.bak"
+
+# Render the *ctl entrypoint
+mv "$CUR_DIR/$PRJ_NAME/framework/entrypoint" "$CUR_DIR/$PRJ_NAME$SUFFIX"
+sed -i.bak "s/{{ project_name }}/$PRJ_NAME/g" "$CUR_DIR/$PRJ_NAME$SUFFIX"
+rm "$CUR_DIR/$PRJ_NAME$SUFFIX.bak"
+
+chmod +x "$CUR_DIR/$PRJ_NAME$SUFFIX"
 
 >&2 echo "Updated BCL build on project: $PRJ_NAME."

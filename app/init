@@ -28,6 +28,9 @@ rm "$CUR_DIR/$PRJ_NAME/framework/complete.bak"
 sed -i.bak "s/{{ project_name }}/$PRJ_NAME/g" "$CUR_DIR/$PRJ_NAME/framework/complete"
 rm "$CUR_DIR/$PRJ_NAME/framework/complete.bak"
 
+sed -i.bak "s/{{ project_name }}/$PRJ_NAME/g" "$CUR_DIR/$PRJ_NAME/framework/help"
+rm "$CUR_DIR/$PRJ_NAME/framework/help.bak"
+
 sed -i.bak "s/{{ project_name }}/$PRJ_NAME/g" "$CUR_DIR/$PRJ_NAME/framework/cli"
 rm "$CUR_DIR/$PRJ_NAME/framework/cli.bak"
 
@@ -74,17 +77,9 @@ if [[ -f "$CUR_DIR/$PRJ_NAME/$PRJ_NAME$SUFFIX" ]]; then
     exit 1
 fi
 
-cat > "$CUR_DIR/$PRJ_NAME$SUFFIX" <<EOC
-#!/usr/bin/env bash
-
-SCRIPT_DIR="\$( cd "\$( dirname "\${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-
-source "\$SCRIPT_DIR/$PRJ_NAME/framework/cli"
-source "\$SCRIPT_DIR/$PRJ_NAME/framework/complete"
-source "\$SCRIPT_DIR/$PRJ_NAME/framework/help"
-source "\$SCRIPT_DIR/$PRJ_NAME/framework/utils"
-
-cli "\$@"
-EOC
+# Render the *ctl entrypoint
+mv "$CUR_DIR/$PRJ_NAME/framework/entrypoint" "$CUR_DIR/$PRJ_NAME$SUFFIX"
+sed -i.bak "s/{{ project_name }}/$PRJ_NAME/g" "$CUR_DIR/$PRJ_NAME$SUFFIX"
+rm "$CUR_DIR/$PRJ_NAME$SUFFIX.bak"
 
 chmod +x "$CUR_DIR/$PRJ_NAME$SUFFIX"

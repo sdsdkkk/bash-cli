@@ -1,16 +1,22 @@
 #!/usr/bin/env bash
 
-# _readlink wraps readlink in Linux or greadlink in Mac OS.
+# kernel returns the kernel type of the system
+kernel() {
+    uname -s
+}
+
+# _readlink wraps readlink in Linux or greadlink in Mac OS. We beed to define
+# this here since this script will be called directly by bash-autocomplete.
 _readlink() {
-    if [ $(uname -s) == "Linux" ]; then
+    if [ $(kernel) == "Linux" ]; then
         readlink "$@"
         return $?
-    elif [ $(uname -s) == "Darwin" ]; then
+    elif [ $(kernel) == "Darwin" ]; then
         greadlink "$@"
         return $?
     fi
 
-    echo "Invalid kernel name $(uname -s)" && return 1
+    echo "Invalid kernel name $(kernel)" && return 1
 }
 
 function {{ function_name }}() {

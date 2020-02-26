@@ -2,6 +2,8 @@
 
 set -e
 
+source $ROOT_DIR/app/.helper/package
+
 APP_DIR=`pwd`
 RELEASE_REPOSITORY=''
 
@@ -15,21 +17,26 @@ if [[ ! -d "$APP_DIR/cli" ]]; then
     mkdir -p $APP_DIR/cli
 fi
 
+# Fetch appropriate version of the package from git
+echo "Fetching available packages from git..."
+available_packages="$(get_available_packages "$RELEASE_REPOSITORY")"
+
 for PACKAGE_BUILD in `tail -n+2 $APP_DIR/BCLFile`; do
     if [[ -d .$PACKAGE_BUILD ]]; then
         rm -rf .$PACKAGE_BUILD
     fi
-    PACKAGE_NAME=`echo $PACKAGE_BUILD | awk '{split($0,a,/-v[0-9]+\.[0-9]+\.[0-9]+-/); print a[1]}'`
 
-    if [[ -d "$APP_DIR/cli/$PACKAGE_NAME" && -f "$APP_DIR/cli/$PACKAGE_NAME/BUILD" ]]; then
-        INSTALLED_PACKAGE=`head -n 1 $APP_DIR/cli/$PACKAGE_NAME/BUILD`
-        if [ $PACKAGE_BUILD == $INSTALLED_PACKAGE  ]; then
-            echo $PACKAGE_BUILD already installed
-            continue
-        fi
+    package_name=$(get_package_name $PACKAGE_BUILD)
+    package_version=$(get_package_version $PACKAGE_BUILD)
+    package_channel=$(get_package_channel $PACKAGE_BUILD)
+    package_platform=$(get_package_platform $PACKAGE_BUILD)
+
+    package_canonical_name="$(get_available_canonical_name "$available_packages" "$package_name" "$package_version" "$package_channel" "$package_platform")"
+
+    is_installed=$(install_package "$RELEASE_REPOSITORY" "$package_canonical_name" "$APP_DIR")
+    if [[ "$is_installed" == "true" ]]; then
+        echo "$package_canonical_name installed"
+    else
+        echo "$(get_package_canonical_name_without_platform "$package_canonical_name") is already installed"
     fi
-    echo Installing $PACKAGE_BUILD...
-    git clone -b $PACKAGE_BUILD $RELEASE_REPOSITORY --depth 1 .$PACKAGE_BUILD
-    cp -R  .$PACKAGE_BUILD/* $APP_DIR/cli
-    rm -rf .$PACKAGE_BUILD
 done

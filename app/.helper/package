@@ -1,23 +1,48 @@
 #!/usr/bin/env bash
 
+set -e
+
 source $ROOT_DIR/app/.helper/system
 
-DEFAULT_VERSION="latest"
+LATEST_VERSION="latest"
 DEFAULT_CHANNEL="release"
+DEFAULT_PLATFORM="$(platform)"
 
-# get_package_canonical_name formats package name, version, and channel into a
-# canonical name
+# get_package_canonical_name formats package name, version, channel, and
+# optionally target platform into a canonical name
+#
+# Examples:
+#   - sv-v2.10.0-release
+#   - pki-v2.2.2-rc1-darwin-x86_64
 get_package_canonical_name() {
     package_name=$1
     package_version=$2
     package_channel=$3
+    package_platform=$4
 
-    echo "$1-v$2-$3"
+    if [[ -z "$package_platform" ]]; then
+        echo "${package_name}-v${package_version}-${package_channel}"
+        return
+    fi
+
+    echo "${package_name}-v${package_version}-${package_channel}-${package_platform}"
+}
+
+# get_package_canonical_name_without_platform discards target platform from a
+# canonical name
+get_package_canonical_name_without_platform() {
+    package_canonical_name=$1
+
+    package_name=$(get_package_name $package_canonical_name)
+    package_version=$(get_package_version $package_canonical_name)
+    package_channel=$(get_package_channel $package_canonical_name)
+
+    echo $(get_package_canonical_name "$package_name" "$package_version" "$package_channel")
 }
 
 # get_package_name parses a package's name from its canonical name
 get_package_name() {
-    echo $1 | awk '{split($0,a,/-v[0-9]+\.[0-9]+\.[0-9]+-/); print a[1]}'
+    echo $1 | awk '{split($0,a,/-/); print a[1]}'
 }
 
 # get_package_version parses a package's numerical version from its canonical
@@ -26,7 +51,7 @@ get_package_version() {
     version=$(echo $1 | _grep -Po 'v[0-9]+\.[0-9]+\.[0-9]+' | _grep -Po '[0-9.]+')
 
     if [[ -z "$version" ]]; then
-        echo $DEFAULT_VERSION
+        echo $LATEST_VERSION
     else
         echo "$version"
     fi
@@ -34,7 +59,7 @@ get_package_version() {
 
 # get_package_channel parses a package's release channel from its canonical name
 get_package_channel() {
-    channel=$(echo $1 | awk '{split($0,a,/-v[0-9]+\.[0-9]+\.[0-9]+-/); print a[2]}')
+    channel=$(echo $1 | awk '{split($0,a,/-/); print a[3]}')
 
     if [[ -z "$channel" ]]; then
         echo $DEFAULT_CHANNEL
@@ -43,38 +68,110 @@ get_package_channel() {
     fi
 }
 
-# get_latest_version fetches the latest numerical version of a package from the
-# repository
-get_latest_version() {
-    release_repo=$1
+# get_package_platform parses a package's target platform from its canonical
+# name. Returns an empty string when the package canonical name does not specify
+# the targeted platform.
+get_package_platform() {
+    local sed_opts="-nr"
+    if [[ "$(kernel)" == "Darwin" ]]; then
+        sed_opts="-nE"
+    fi
+
+    # Unlike package name and channel, platform can contain dashes, and thus
+    # cannot be splitted with awk.
+    echo "$1" | sed $sed_opts 's/^[a-zA-Z0-9]+-[a-zA-Z0-9.]+-[a-zA-Z0-9]+-?(.*)$/\1/p'
+}
+
+# get_available_packages list available packages in a bcl release git repository
+get_available_packages() {
+    remotes=$(git ls-remote "$1")
+    echo "$remotes" | _grep -Poe 'refs/heads/.*$' | sed 's#refs/heads/##'
+}
+
+# get_available_canonical_name returns the canonical name of available package
+# satisfying several (optional) criteria: version, channel, and target platform.
+get_available_canonical_name() {
+    # The output of get_available_packages(). Accepted as a parameter so we
+    # don't need to call git ls-remote multiple times when installing multiple
+    # packages.
+    git_ls_remote_output="$1"
+
     package_name=$2
-    package_channel=$3
+    package_version=$3
+    package_channel=$4
+    package_platform=$5
+
+    if [[ -z "$package_version" ]]; then
+        package_version=$LATEST_VERSION
+    fi
 
     if [[ -z "$package_channel" ]]; then
         package_channel=$DEFAULT_CHANNEL
     fi
 
-    output="$(git ls-remote "$release_repo")"
-
-    if [ "$?" != "0" ]; then
-        echo "$output" >&2
-        exit 1
+    if [[ -z "$package_platform" ]]; then
+        package_platform=$DEFAULT_PLATFORM
     fi
 
-    branches="$(echo "$output" | awk '{print $2}' | _grep -e "refs/heads/$package_name-" | _grep -e "-$package_channel" | sort -V)"
+    branches="$(echo "$git_ls_remote_output" |  _grep -Pe "^$package_name-" || true | sort -V)"
+
+    if [ "$package_version" == "$LATEST_VERSION" ]; then
+        branches="$(echo "$branches" | _grep -Pe "^$package_name-" | _grep -Pe "-$package_channel\$" || true)"
+    else
+        # If a version number is specified, filter by it too
+        branches="$(echo "$branches" | _grep -Pe "^$package_name-v$package_version-$package_channel" || true)"
+    fi
 
     if [[ -z "$branches" ]]; then
-        echo "Package $package_name of channel $package_channel not found" >&2
+        echo "Package \"$package_name\" with version \"$package_version\" of" \
+            "channel \"$package_channel\" not found" >&2
+
         exit 1
     fi
 
-    latest_branch=$(echo "$branches" | tail -n 1)
-    latest_release=${latest_branch#"refs/heads/"}
+    # Group packages by whether it has target platform information or not
+    platformed_branches="$(echo "$branches" | _grep -Pe "-$package_channel-$package_platform\$" || true)"
+    unplatformed_branches="$(echo "$branches" | _grep -Pe "-$package_channel\$" || true)"
 
-    echo $(get_package_version "$latest_release")
+    # Prefer packages with target platform information, even if it is not the
+    # latest version
+    latest_branch=""
+    if [[ ! -z "$platformed_branches" ]]; then
+        latest_branch=$(echo "$platformed_branches" | tail -n 1)
+    else
+        latest_branch=$(echo "$unplatformed_branches" | tail -n 1)
+    fi
+
+    echo "${latest_branch}"
 }
 
-# install_package installs a package
+# is_package_installed returns "true" whether a package with the same version
+# and release channel is already installed in a directory
+is_package_installed() {
+    package_canonical_name=$1
+    install_dir=$2
+
+    package_name=$(get_package_name $package_canonical_name)
+
+    # We don't care about the package's target platform, so we need to discard
+    # it
+    package_canonical_name=$(get_package_canonical_name_without_platform "$package_canonical_name")
+
+    if [[ -d "$install_dir/cli/$package_name" && -f "$install_dir/cli/$package_name/BUILD" ]]; then
+        installed_package=$(head -n 1 "$install_dir/cli/$package_name/BUILD")
+        installed_package=$(get_package_canonical_name_without_platform "$installed_package")
+
+        if [ "$package_canonical_name" == "$installed_package" ]; then
+            echo "true"
+            return
+        fi
+    fi
+
+    echo "false"
+}
+
+# install_package installs a package. Returns "true" if the package was
+# installed (i.e. it was not present before or was outdated).
 install_package() {
     release_repo=$1
     package_canonical_name=$2
@@ -85,20 +182,13 @@ install_package() {
         install_mode="default"
     fi
 
-    echo "$release_repo" "$package_canonical_name" "$install_dir"
-
     package_name=$(get_package_name $package_canonical_name)
+    package_installed=$(is_package_installed "$package_canonical_name" "$install_dir")
 
-    if [ install_mode != "force" ] && [[ -d "$install_dir/cli/$package_name" && -f "$install_dir/cli/$package_name/BUILD" ]]; then
-        installed_package=`head -n 1 $install_dir/cli/$package_name/BUILD`
-
-        if [ $package_canonical_name == $installed_package  ]; then
-            echo $package_canonical_name already installed
-            return
-        fi
+    if [ install_mode != "force" ] && [[ "$package_installed" == "true" ]]; then
+        echo "false"
+        return
     fi
-
-    echo "Installing $package_canonical_name..."
 
     mkdir -p "$install_dir/cli"
 
@@ -110,4 +200,6 @@ install_package() {
     rm -rf "$install_dir/cli/$package_name"
     cp -R  "$clone_dir"/* "$install_dir/cli"
     rm -rf "$clone_dir"
+
+    echo "true"
 }

@@ -27,18 +27,21 @@ main() {
     package_name=$(get_package_name $PACKAGE)
     package_version=$(get_package_version $PACKAGE)
     package_channel=$(get_package_channel $PACKAGE)
+    package_platform=$(get_package_platform $PACKAGE)
 
-    # Fetch latest version of the package from git
-    if [ "$package_version" == "latest" ]; then
-        echo "Fetching latest version of $package_name..."
-        package_version=`get_latest_version "$REPOSITORY" "$package_name"`
-    fi
+    # Fetch appropriate version of the package from git
+    echo "Fetching available versions of $package_name..."
+    package_canonical_name="$(get_available_canonical_name "$(get_available_packages "$REPOSITORY")" "$package_name" "$package_version" "$package_channel" "$package_platform")"
 
     # Install the package
-    package_canonical_name=$(get_package_canonical_name "$package_name" "$package_version" "$package_channel")
-    install_package "$REPOSITORY" "$package_canonical_name" "$INSTALL_DIRECTORY"
+    echo "Installing $package_canonical_name..."
+    is_installed=$(install_package "$REPOSITORY" "$package_canonical_name" "$INSTALL_DIRECTORY")
 
-    echo "Finished installing $package_canonical_name"
+    if [[ "$is_installed" == "true" ]]; then
+        echo "Finished installing $package_canonical_name"
+    else
+        echo "$package_canonical_name is already installed"
+    fi
 
     # Check the PATH environment variable
     if ! echo "$PATH" | _grep -e "$INSTALL_DIRECTORY/cli" > /dev/null 2>&1; then

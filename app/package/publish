@@ -6,8 +6,10 @@ if [ $# == 0 ]; then
     exit 3
 fi
 
+PACKAGE_NAME="$1"
+TARGET_PLATFORM="$2"
+
 APP_DIR=`pwd`
-PACKAGE_NAME="${!#}"
 PACKAGE_RELEASE_TAG=''
 RELEASE_REPOSITORY=''
 EXECUTABLE_SUFFIX='ctl'
@@ -20,6 +22,11 @@ fi
 
 if [[ -f "$APP_DIR/$PACKAGE_NAME/BUILD" ]]; then
     PACKAGE_RELEASE_TAG=`head -n 1 $APP_DIR/$PACKAGE_NAME/BUILD`
+
+    if [[ ! -z "$TARGET_PLATFORM" ]]; then
+        PACKAGE_RELEASE_TAG="$PACKAGE_RELEASE_TAG-$TARGET_PLATFORM"
+    fi
+
     RELEASE_REPOSITORY=`tail -n 1 $APP_DIR/$PACKAGE_NAME/BUILD`
 fi
 
@@ -28,6 +35,8 @@ if [[ -d "$TMP_DIR" ]]; then
     >&2 echo "Please check if you have another build publishing or remove the directory."
     exit 3
 fi
+
+echo "Publishing $PACKAGE_RELEASE_TAG..."
 
 git clone $RELEASE_REPOSITORY --depth 1 $TMP_DIR
 cd $TMP_DIR

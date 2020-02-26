@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+
+set -e
+
+# kernel returns the kernel type of the system
+kernel() {
+    uname -s
+}
+
+# _readlink wraps readlink in Linux or greadlink in Mac OS
+_readlink() {
+    if [ $(kernel) == "Linux" ]; then
+        readlink "$@"
+        return $?
+    elif [ $(kernel) == "Darwin" ]; then
+        greadlink "$@"
+        return $?
+    fi
+
+    echo "readlink: invalid kernel name $(kernel)" >&2
+    return 1
+}
+
+# _grep wraps grep in Linux or ggrep in Mac OS
+_grep() {
+    if [ $(kernel) == "Linux" ]; then
+        grep "$@"
+        return $?
+    elif [ $(kernel) == "Darwin" ]; then
+        ggrep "$@"
+        return $?
+    fi
+
+    echo "grep: invalid kernel name $(kernel)" >&2
+    return 1
+}

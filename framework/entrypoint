@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -e
+
 # cli_dir returns absolute (non-symlink) path to the directory containing
 # the *ctl entrypoint script
 function cli_dir() {
@@ -22,20 +24,21 @@ function cli_dir() {
         return 1
     }
 
-    # The additional ../../../ are required since this file is located three
-    # directories down from from the desired directory
-    _readlink -f "$(dirname "$(_readlink -f $0)")/../../../"
+    dirname "$(_readlink -f $0)"
 }
 
-CLI_DIR="$(cli_dir)"
-PRJ_NAME="{{ project_name }}"
-SUFFIX="ctl"
+function main() {
+    # Expose CLI_DIR variable to subshells and child processes so they can
+    # use it to determine path to the ctl directory for importing additional
+    # scripts (e.g. the framework/utils script).
+    export CLI_DIR="$(cli_dir)"
 
-cat > "$HOME/.bash_completion.d/$PRJ_NAME$SUFFIX" <<EOC
-source "$CLI_DIR/$PRJ_NAME/framework/complete"
-complete -F _bash_cli_$PRJ_NAME$SUFFIX $PRJ_NAME$SUFFIX
-EOC
+    source "$CLI_DIR/{{ project_name }}/framework/cli"
+    source "$CLI_DIR/{{ project_name }}/framework/complete"
+    source "$CLI_DIR/{{ project_name }}/framework/help"
+    source "$CLI_DIR/{{ project_name }}/framework/utils"
 
-if [[ -f "$CLI_DIR/$PRJ_NAME/$PRJ_NAME$SUFFIX" ]]; then
-    exit 1
-fi
+    cli "$@"
+}
+
+main "$@"

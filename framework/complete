@@ -1,10 +1,28 @@
 #!/usr/bin/env bash
 
+# kernel returns the kernel type of the system
+kernel() {
+    uname -s
+}
+
+# _readlink wraps readlink in Linux or greadlink in Mac OS. We beed to define
+# this here since this script will be called directly by bash-autocomplete.
+_readlink() {
+    if [ $(kernel) == "Linux" ]; then
+        readlink "$@"
+        return $?
+    elif [ $(kernel) == "Darwin" ]; then
+        greadlink "$@"
+        return $?
+    fi
+
+    echo "Invalid kernel name $(kernel)" && return 1
+}
 
 function {{ function_name }}() {
     local root_dir;
     local project_name={{ project_name }};
-    root_dir=`dirname "$(readlink -f "$(which ${COMP_WORDS[0]})")"`
+    root_dir=`dirname "$(_readlink -f "$(which ${COMP_WORDS[0]})")"`
     root_dir="$root_dir/$project_name"
 
     # If the project directory is not found, then the command might be called as

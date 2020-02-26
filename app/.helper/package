@@ -72,15 +72,14 @@ get_package_channel() {
 # name. Returns an empty string when the package canonical name does not specify
 # the targeted platform.
 get_package_platform() {
-    # Unlike package name and channel, platform can contain dashes, and thus
-    # cannot be splitted with awk.
-
+    local sed_opts="-nr"
     if [[ "$(kernel)" == "Darwin" ]]; then
-        echo "$1" | sed -nE 's/^[a-zA-Z0-9]+-[a-zA-Z0-9.]+-[a-zA-Z0-9]+-?(.*)$/\1/p'
-        return
+        sed_opts="-nE"
     fi
 
-    echo "$1" | sed -nr 's/^[a-zA-Z0-9]+-[a-zA-Z0-9.]+-[a-zA-Z0-9]+-?(.*)$/\1/p'
+    # Unlike package name and channel, platform can contain dashes, and thus
+    # cannot be splitted with awk.
+    echo "$1" | sed $sed_opts 's/^[a-zA-Z0-9]+-[a-zA-Z0-9.]+-[a-zA-Z0-9]+-?(.*)$/\1/p'
 }
 
 # get_available_packages list available packages in a bcl release git repository
@@ -134,7 +133,7 @@ get_available_canonical_name() {
     platformed_branches="$(echo "$branches" | _grep -Pe "-$package_channel-$package_platform\$" || true)"
     unplatformed_branches="$(echo "$branches" | _grep -Pe "-$package_channel\$" || true)"
 
-    # Prefer packages with target platfrom information, even if it is not the
+    # Prefer packages with target platform information, even if it is not the
     # latest version
     latest_branch=""
     if [[ ! -z "$platformed_branches" ]]; then

@@ -19,7 +19,8 @@ fi
 
 # Fetch appropriate version of the package from git
 echo "Fetching available packages from git..."
-available_packages="$(get_available_packages "$RELEASE_REPOSITORY")"
+remote_branches=$(git ls-remote "$RELEASE_REPOSITORY")
+available_packages="$(get_available_packages "$remote_branches")"
 
 for PACKAGE_BUILD in `tail -n+2 $APP_DIR/BCLFile`; do
     if [[ -d .$PACKAGE_BUILD ]]; then
@@ -32,8 +33,9 @@ for PACKAGE_BUILD in `tail -n+2 $APP_DIR/BCLFile`; do
     package_platform=$(get_package_platform $PACKAGE_BUILD)
 
     package_canonical_name="$(get_available_canonical_name "$available_packages" "$package_name" "$package_version" "$package_channel" "$package_platform")"
+    package_commit_hash="$(get_package_commit_hash "$remote_branches" "$package_canonical_name")"
 
-    is_installed=$(install_package "$RELEASE_REPOSITORY" "$package_canonical_name" "$APP_DIR")
+    is_installed=$(install_package "$RELEASE_REPOSITORY" "$package_canonical_name" "$package_commit_hash" "$APP_DIR")
     if [[ "$is_installed" == "true" ]]; then
         echo "$package_canonical_name installed"
     else

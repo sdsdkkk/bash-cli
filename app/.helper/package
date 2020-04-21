@@ -7,6 +7,7 @@ source $ROOT_DIR/app/.helper/system
 LATEST_VERSION="latest"
 DEFAULT_CHANNEL="release"
 DEFAULT_PLATFORM="$(platform)"
+CACHE_DIRECTORY="${HOME}/.bcl/.cache"
 
 # get_package_canonical_name formats package name, version, channel, and
 # optionally target platform into a canonical name
@@ -82,10 +83,19 @@ get_package_platform() {
     echo "$1" | sed $sed_opts 's/^[a-zA-Z0-9]+-[a-zA-Z0-9.]+-[a-zA-Z0-9]+-?(.*)$/\1/p'
 }
 
-# get_available_packages list available packages in a bcl release git repository
+# get_available_packages list available packages in a bcl release git
+# repository. Accepts the output of `git ls-remote` as an input.
 get_available_packages() {
-    remotes=$(git ls-remote "$1")
-    echo "$remotes" | _grep -Poe 'refs/heads/.*$' | sed 's#refs/heads/##'
+    echo "$1" | _grep -Poe 'refs/heads/.*$' | sed 's#refs/heads/##'
+}
+
+# get_package_commit_hash returns the commit has of a package release. Accepts
+# the output of `git ls-remote` and the package canonical name as the inputs.
+get_package_commit_hash() {
+    local git_ls_remote="$1"
+    local package_canonical_name="$2"
+
+    echo "$git_ls_remote" | _grep -e "$package_canonical_name" | grep -Poe '^[0-9a-fA-F]+'
 }
 
 # get_available_canonical_name returns the canonical name of available package
@@ -94,7 +104,7 @@ get_available_canonical_name() {
     # The output of get_available_packages(). Accepted as a parameter so we
     # don't need to call git ls-remote multiple times when installing multiple
     # packages.
-    git_ls_remote_output="$1"
+    packages_available="$1"
 
     package_name=$2
     package_version=$3
@@ -113,7 +123,7 @@ get_available_canonical_name() {
         package_platform=$DEFAULT_PLATFORM
     fi
 
-    branches="$(echo "$git_ls_remote_output" |  _grep -Pe "^$package_name-" || true | sort -V)"
+    branches="$(echo "$packages_available" |  _grep -Pe "^$package_name-" || true | sort -V)"
 
     if [ "$package_version" == "$LATEST_VERSION" ]; then
         branches="$(echo "$branches" | _grep -Pe "^$package_name-" | _grep -Pe "-$package_channel\$" || true)"
@@ -173,10 +183,11 @@ is_package_installed() {
 # install_package installs a package. Returns "true" if the package was
 # installed (i.e. it was not present before or was outdated).
 install_package() {
-    release_repo=$1
-    package_canonical_name=$2
-    install_dir=$3
-    install_mode=$4
+    local release_repo=$1
+    local package_canonical_name=$2
+    local package_commit_hash=$3
+    local install_dir=$4
+    local install_mode=$5
 
     if [[ -z "$install_mode" ]]; then
         install_mode="default"
@@ -190,16 +201,60 @@ install_package() {
         return
     fi
 
+    # Cache the package
+    cache_package "$release_repo" "$package_canonical_name" "$package_commit_hash" "$install_mode"
+
+    # Copy the cached package
+    local pkg_cache_dir="$CACHE_DIRECTORY/$package_canonical_name-$package_commit_hash"
+
     mkdir -p "$install_dir/cli"
-
-    clone_dir="/tmp/.bcl-$package_canonical_name"
-
-    rm -rf "$clone_dir"
-    git clone -b "$package_canonical_name" "$release_repo" --depth 1 "$clone_dir"
-
     rm -rf "$install_dir/cli/$package_name"
-    cp -R  "$clone_dir"/* "$install_dir/cli"
-    rm -rf "$clone_dir"
+    cp -R  "$pkg_cache_dir"/* "$install_dir/cli"
 
     echo "true"
+}
+
+# cache_package caches a package to $CACHE_DIRECTORY, skipping if the package
+# is already cached.
+#
+# Args:
+#   release_repo: Git repository address to clone from
+#
+#   package_canonical_name: Canonical name of the package to be cached, is also
+#       the branch name in release_repo
+#
+#   package_commit_hash: Commit has of the package_canonical_name branch
+#
+#   cache_mode: Set to "force" to redownload the package. (Optional), defaults
+#       to "default".
+cache_package() {
+    local release_repo=$1
+    local package_canonical_name=$2
+    local package_commit_hash=$3
+    local cache_mode=$4
+
+    if [[ -z "$cache_mode" ]]; then
+        cache_mode="default"
+    fi
+
+    local pkg_cache_dir="$CACHE_DIRECTORY/$package_canonical_name-$package_commit_hash"
+
+    if [[ -d "$pkg_cache_dir" ]] && [ "$cache_mode" != "force" ]; then
+        return
+    fi
+
+    # "Install" the package into the cache directory
+    mkdir -p "$CACHE_DIRECTORY"
+
+    rm -rf "$pkg_cache_dir"
+    mkdir -p "$pkg_cache_dir"
+
+    git clone -b "$package_canonical_name" "$release_repo" --depth 1 "$pkg_cache_dir"
+    rm -rf "$pkg_cache_dir/.git"
+}
+
+# clear_package_cache removes the package cache directory
+clear_package_cache() {
+    echo "Emptying package cache directory $CACHE_DIRECTORY..."
+    rm -rf "$CACHE_DIRECTORY"
 }

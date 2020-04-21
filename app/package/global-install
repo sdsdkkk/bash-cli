@@ -31,11 +31,15 @@ main() {
 
     # Fetch appropriate version of the package from git
     echo "Fetching available versions of $package_name..."
-    package_canonical_name="$(get_available_canonical_name "$(get_available_packages "$REPOSITORY")" "$package_name" "$package_version" "$package_channel" "$package_platform")"
+    remote_branches=$(git ls-remote "$REPOSITORY")
+    available_packages="$(get_available_packages "$remote_branches")"
+
+    package_canonical_name="$(get_available_canonical_name "$available_packages" "$package_name" "$package_version" "$package_channel" "$package_platform")"
+    package_commit_hash="$(get_package_commit_hash "$remote_branches" "$package_canonical_name")"
 
     # Install the package
     echo "Installing $package_canonical_name..."
-    is_installed=$(install_package "$REPOSITORY" "$package_canonical_name" "$INSTALL_DIRECTORY")
+    is_installed=$(install_package "$REPOSITORY" "$package_canonical_name" "$package_commit_hash" "$INSTALL_DIRECTORY")
 
     if [[ "$is_installed" == "true" ]]; then
         echo "Finished installing $package_canonical_name"

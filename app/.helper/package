@@ -86,7 +86,9 @@ get_package_platform() {
 # get_available_packages list available packages in a bcl release git
 # repository. Accepts the output of `git ls-remote` as an input.
 get_available_packages() {
-    echo "$1" | _grep -Poe 'refs/heads/.*$' | sed 's#refs/heads/##'
+    local git_ls_remote="$1"
+
+    echo "$git_ls_remote" | _grep -Poe 'refs/heads/.*$' | sed 's#refs/heads/##'
 }
 
 # get_package_commit_hash returns the commit has of a package release. Accepts
@@ -189,7 +191,7 @@ install_package() {
     local install_dir=$4
     local install_mode=$5
 
-    if [[ -z "$install_mode" ]]; then
+    if [[ "$install_mode" != "default" ]] && [[ "$install_mode" != "force" ]]; then
         install_mode="default"
     fi
 
@@ -233,8 +235,8 @@ cache_package() {
     local package_commit_hash=$3
     local cache_mode=$4
 
-    if [[ -z "$cache_mode" ]]; then
-        cache_mode="default"
+    if [[ "$install_mode" != "default" ]] && [[ "$install_mode" != "force" ]]; then
+        install_mode="default"
     fi
 
     local pkg_cache_dir="$CACHE_DIRECTORY/$package_canonical_name-$package_commit_hash"

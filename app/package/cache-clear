@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+set -e
+
+source $ROOT_DIR/app/.helper/package
+
+clear_package_cache

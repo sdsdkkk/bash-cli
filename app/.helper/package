@@ -97,7 +97,7 @@ get_package_commit_hash() {
     local git_ls_remote="$1"
     local package_canonical_name="$2"
 
-    echo "$git_ls_remote" | _grep -e "$package_canonical_name" | grep -Poe '^[0-9a-fA-F]+'
+    echo "$git_ls_remote" | _grep -e "$package_canonical_name" | _grep -Poe '^[0-9a-fA-F]+'
 }
 
 # get_available_canonical_name returns the canonical name of available package

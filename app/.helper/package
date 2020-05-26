@@ -128,7 +128,7 @@ get_available_canonical_name() {
     branches="$(echo "$packages_available" |  _grep -Pe "^$package_name-" || true | sort -V)"
 
     if [ "$package_version" == "$LATEST_VERSION" ]; then
-        branches="$(echo "$branches" | _grep -Pe "^$package_name-" | _grep -Pe "-$package_channel\$" || true)"
+        branches="$(echo "$branches" | _grep -Pe "^$package_name-" | _grep -Pe "-$package_channel" || true)"
     else
         # If a version number is specified, filter by it too
         branches="$(echo "$branches" | _grep -Pe "^$package_name-v$package_version-$package_channel" || true)"

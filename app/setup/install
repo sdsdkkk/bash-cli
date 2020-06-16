@@ -37,7 +37,10 @@ cat > "$BASH_COMPLETION_DIR/$NAME" <<EOC
 source "$APP_DIR/complete"
 complete -F _bash_cli $NAME
 EOC
-chown -R $USER:$GROUP $BASH_COMPLETION_DIR
+
+if [[ $EUID -ne 0 ]]; then
+    chown -R $USER:$GROUP $BASH_COMPLETION_DIR
+fi
 
 if [[ ! -f "$BASH_COMPLETION_FILE" ]]; then
     cat > "$BASH_COMPLETION_FILE" <<EOC

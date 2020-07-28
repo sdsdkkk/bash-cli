@@ -213,13 +213,19 @@ install_package() {
     rm -rf "$install_dir/cli/$package_name"
     cp -R  "$pkg_cache_dir"/* "$install_dir/cli"
 
-    local post_install_script="$install_dir/cli/$package_name/scripts/post-install.sh"
-
-    if [[ -f "$post_install_script" ]]; then
-      bash $post_install_script
-    fi
-
     echo "true"
+}
+
+post_install() {
+  local package_canonical_name=$1
+  local install_dir=$2
+
+  package_name=$(get_package_name $package_canonical_name)
+  local post_install_script="$install_dir/cli/$package_name/scripts/post-install.sh"
+
+  if [[ -f "$post_install_script" ]]; then
+    bash $post_install_script
+  fi
 }
 
 # cache_package caches a package to $CACHE_DIRECTORY, skipping if the package

@@ -42,6 +42,7 @@ main() {
     is_installed=$(install_package "$REPOSITORY" "$package_canonical_name" "$package_commit_hash" "$INSTALL_DIRECTORY")
 
     if [[ "$is_installed" == "true" ]]; then
+        post_install "$package_canonical_name" "$INSTALL_DIRECTORY"
         echo "Finished installing $package_canonical_name"
     else
         echo "$package_canonical_name is already installed"

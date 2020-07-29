@@ -37,6 +37,7 @@ for PACKAGE_BUILD in `tail -n+2 $APP_DIR/BCLFile`; do
 
     is_installed=$(install_package "$RELEASE_REPOSITORY" "$package_canonical_name" "$package_commit_hash" "$APP_DIR")
     if [[ "$is_installed" == "true" ]]; then
+        post_install "$package_canonical_name" "$INSTALL_DIRECTORY"
         echo "$package_canonical_name installed"
     else
         echo "$(get_package_canonical_name_without_platform "$package_canonical_name") is already installed"

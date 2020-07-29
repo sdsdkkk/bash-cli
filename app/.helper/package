@@ -224,7 +224,13 @@ post_install() {
   local post_install_script="$install_dir/cli/$package_name/scripts/post-install.sh"
 
   if [[ -f "$post_install_script" ]]; then
+    echo "Executing Post Install Script for $package_canonical_name"
     bash $post_install_script
+    if [[ $? -ne 0 ]]; then
+      echo -e "\033[0;31m[ ERROR ]\033[0m Failed to execute Post Install script."
+    else
+      echo "Finished Executing Post Install Script."
+    fi
   fi
 }
 

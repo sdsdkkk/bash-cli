@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+
+echo "Install BCL"
+
+__exit_code=0
+
+function check_requirenmets_app () {
+  __app_name="$1"
+  if [[ -f $( command -v "$__app_name" ) ]]; then
+    echo "[*] $__app_name installed"
+  else
+    echo "[ ] $__app_name need to install"
+    __exit_code=$(( __exit_code + 1 ))
+  fi
+}
+
+check_requirenmets_app "git"
+check_requirenmets_app "unzip"
+check_requirenmets_app "curl"
+check_requirenmets_app "jq"
+
+if [[ "${BASH_VERSINFO[0]}" -gt 4 ]]; then
+  echo "[*] BASH version is higher 4"
+else
+  echo "[ ] BASH version need update"
+  __exit_code=$(( __exit_code + 1 ))
+fi
+
+if [[ __exit_code -lt 0 ]]; then
+  echo "Fix dependings before install scripts"
+  exit 1
+else
+  echo "Dependencies are satisfied" 
+fi
+
+echo "Download latest version of BCL"
+
+curl -L -s https://github.com/BrunIF/bcl/archive/master.zip -o /tmp/bcl.zip
+cd "/tmp" || exit
+unzip bcl.zip
+cd "/tmp/bcl-master" || exit
+./cli setup install

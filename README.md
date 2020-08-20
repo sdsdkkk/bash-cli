@@ -14,8 +14,7 @@ BCL is a modification of that.
 Install:
 
 - BASH (version > 4)
-- jq
-- git
+- git, unzip, curl, jq
 
 ## Installation
 

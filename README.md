@@ -9,16 +9,23 @@ and executable to be presented as a sub-command.
 
 BCL is a modification of that.
 
+## Requirements
+
+Install:
+
+- BASH (version > 4)
+- jq
+- git
+
 ## Installation
 
-When installing
+```bash
+curl -L -s https://raw.githubusercontent.com/BrunIF/bcl/master/install | bash
+```
 
-```sh
-git clone git@github.com:cermati/bcl.git
-cd bcl
-./cli setup install
+Enable autocomplete for zsh
 
-# Enable autocomplete for zsh
+```bash
 cat <<EOF >> ~/.zshrc
 # BCL autocomplete
 autoload -U +X compinit && compinit
@@ -42,17 +49,18 @@ bcl create test-command
 ```
 
 ## Package Management
+
 BCL has a built-in simple git-based package management capabilities to publish CLI tools using git
 repositories. This is useful to have an internal tooling distribution system in our organization.
 
-```
+```bash
 bcl package install
 ```
 
 The package installation command will read a file named `BCLFile` from the directory it's run on.
 Here's an example `BCLFile`.
 
-```
+```bash
 git@github.com:sample-org/sample-release-repo.git
 sample-package1-v1.0.0-release
 sample-package2-v1.0.0-release
@@ -64,14 +72,14 @@ repository and iterate the rest of the lines as the release branch name of the r
 See [this repository](https://github.com/sdsdkkk/branch-test) to see how the packages are managed
 using git branches. The packages will be put inside the `cli` subdirectory of the execution directory.
 
-```
+```bash
 bcl package publish [package_name]
 ```
 
 The command will read the `BUILD` file on the CLI tool project directory. The following is a sample
 `BUILD` file.
 
-```
+```bash
 sample-package1-v1.0.0-release
 git@github.com:sample-org/sample-release-repo.git
 ```
@@ -80,6 +88,7 @@ The first line should contain the name of the distribution branch, the second li
 the git repository it's located in.
 
 ## Adding Commands
+
 Bash CLI commands are just a stock-standard script with a filename that matches the command name.
 These scripts are contained within your `app` folder, or within nested folders there if you want
 to create a tree-based command structure.
@@ -94,6 +103,7 @@ The simplest way to add a command however, is to just run `bcl create [command n
 and have it plop down the files for you to customize.
 
 ### Contextual Help
+
 Bash CLI provides tools which enable your users to easily discover how to use your command line without
 needing to read your docs (a travesty, we know). To make this possible, you'll want to add two extra
 files for each command.

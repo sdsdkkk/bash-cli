@@ -2,7 +2,9 @@
 
 set -e
 
-source $ROOT_DIR/app/.helper/system
+# shellcheck disable=SC1091
+# shellcheck source=app/.helper/system
+source "$ROOT_DIR/app/.helper/system"
 
 LATEST_VERSION="latest"
 DEFAULT_CHANNEL="release"
@@ -34,22 +36,22 @@ get_package_canonical_name() {
 get_package_canonical_name_without_platform() {
     package_canonical_name=$1
 
-    package_name=$(get_package_name $package_canonical_name)
-    package_version=$(get_package_version $package_canonical_name)
-    package_channel=$(get_package_channel $package_canonical_name)
+    package_name=$(get_package_name "$package_canonical_name")
+    package_version=$(get_package_version "$package_canonical_name")
+    package_channel=$(get_package_channel "$package_canonical_name")
 
-    echo $(get_package_canonical_name "$package_name" "$package_version" "$package_channel")
+    get_package_canonical_name "$package_name" "$package_version" "$package_channel"
 }
 
 # get_package_name parses a package's name from its canonical name
 get_package_name() {
-    echo $1 | awk '{split($0,a,/-/); print a[1]}'
+    echo "$1" | awk '{split($0,a,/-/); print a[1]}'
 }
 
 # get_package_version parses a package's numerical version from its canonical
 # name
 get_package_version() {
-    version=$(echo $1 | _grep -Po 'v[0-9]+\.[0-9]+\.[0-9]+' | _grep -Po '[0-9.]+')
+    version=$(echo "$1" | _grep -Po 'v[0-9]+\.[0-9]+\.[0-9]+' | _grep -Po '[0-9.]+')
 
     if [[ -z "$version" ]]; then
         echo $LATEST_VERSION
@@ -60,7 +62,7 @@ get_package_version() {
 
 # get_package_channel parses a package's release channel from its canonical name
 get_package_channel() {
-    channel=$(echo $1 | awk '{split($0,a,/-/); print a[3]}')
+    channel=$(echo "$1" | awk '{split($0,a,/-/); print a[3]}')
 
     if [[ -z "$channel" ]]; then
         echo $DEFAULT_CHANNEL
@@ -148,7 +150,7 @@ get_available_canonical_name() {
     # Prefer packages with target platform information, even if it is not the
     # latest version
     latest_branch=""
-    if [[ ! -z "$platformed_branches" ]]; then
+    if [[ -n "$platformed_branches" ]]; then
         latest_branch=$(echo "$platformed_branches" | tail -n 1)
     else
         latest_branch=$(echo "$unplatformed_branches" | tail -n 1)
@@ -163,7 +165,7 @@ is_package_installed() {
     package_canonical_name=$1
     install_dir=$2
 
-    package_name=$(get_package_name $package_canonical_name)
+    package_name=$(get_package_name "$package_canonical_name")
 
     # We don't care about the package's target platform, so we need to discard
     # it
@@ -195,10 +197,10 @@ install_package() {
         install_mode="default"
     fi
 
-    package_name=$(get_package_name $package_canonical_name)
+    package_name=$(get_package_name "$package_canonical_name")
     package_installed=$(is_package_installed "$package_canonical_name" "$install_dir")
 
-    if [ install_mode != "force" ] && [[ "$package_installed" == "true" ]]; then
+    if [[ "$install_mode" != "force" ]] && [[ "$package_installed" == "true" ]]; then
         echo "false"
         return
     fi

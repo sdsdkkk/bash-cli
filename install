@@ -35,6 +35,7 @@ fi
 
 echo "Download latest version of BCL"
 
+rm -rf /tmp/bcl*
 curl -L -s https://github.com/BrunIF/bcl/archive/master.zip -o /tmp/bcl.zip
 cd "/tmp" || exit
 unzip bcl.zip

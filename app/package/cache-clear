@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 
+# shellcheck disable=SC1090
+
 set -e
 
-source $ROOT_DIR/app/.helper/package
+source "$ROOT_DIR/app/.helper/package"
 
 clear_package_cache

@@ -4,7 +4,7 @@ if [ $# == 0 ]; then
     exit 3
 fi
 
-APP_DIR=`pwd`
+APP_DIR=$(pwd)
 if [[ -d "$APP_DIR/app" && -f "$APP_DIR/app/.bash_cli" ]]; then
     APP_DIR="$APP_DIR/app"
 fi
@@ -52,4 +52,4 @@ ARGS  - The arguments you wish to provide to this command
 TODO: Fill out the help information for this command.
 EOT
 
-echo -e "\033[32mCommand \033[36m$@\033[32m created successfully\033[39m"
+echo -e "\033[32mCommand \033[36m$*\033[32m created successfully\033[39m"

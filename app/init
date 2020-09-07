@@ -4,12 +4,12 @@ if [ $# == 0 ]; then
     exit 3
 fi
 
-CUR_DIR=`pwd`
+CUR_DIR=$(pwd)
 APP_DIR="$CUR_DIR"
 PRJ_NAME="${!#}"
 SUFFIX="ctl"
 AUTOCOMPLETE_DIR="$CUR_DIR/$PRJ_NAME/app/autocomplete"
-AUTHOR=`whoami`
+AUTHOR=$(whoami)
 
 mkdir -p "$CUR_DIR/$PRJ_NAME/blueprint"
 mkdir -p "$CUR_DIR/$PRJ_NAME/files"

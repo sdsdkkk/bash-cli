@@ -9,7 +9,7 @@ fi
 PACKAGE_NAME="$1"
 TARGET_PLATFORM="$2"
 
-APP_DIR=`pwd`
+APP_DIR=$(pwd)
 PACKAGE_RELEASE_TAG=''
 RELEASE_REPOSITORY=''
 EXECUTABLE_SUFFIX='ctl'
@@ -21,13 +21,13 @@ if [[ ! -d "$APP_DIR/$PACKAGE_NAME" ]]; then
 fi
 
 if [[ -f "$APP_DIR/$PACKAGE_NAME/BUILD" ]]; then
-    PACKAGE_RELEASE_TAG=`head -n 1 $APP_DIR/$PACKAGE_NAME/BUILD`
+    PACKAGE_RELEASE_TAG=$(head -n 1 "$APP_DIR/$PACKAGE_NAME/BUILD")
 
     if [[ ! -z "$TARGET_PLATFORM" ]]; then
         PACKAGE_RELEASE_TAG="$PACKAGE_RELEASE_TAG-$TARGET_PLATFORM"
     fi
 
-    RELEASE_REPOSITORY=`tail -n 1 $APP_DIR/$PACKAGE_NAME/BUILD`
+    RELEASE_REPOSITORY=$(tail -n 1 "$APP_DIR/$PACKAGE_NAME/BUILD")
 fi
 
 if [[ -d "$TMP_DIR" ]]; then
@@ -38,14 +38,14 @@ fi
 
 echo "Publishing $PACKAGE_RELEASE_TAG..."
 
-git clone $RELEASE_REPOSITORY --depth 1 $TMP_DIR
-cd $TMP_DIR
+git clone "$RELEASE_REPOSITORY" --depth 1 "$TMP_DIR"
+cd "$TMP_DIR"
 git update-ref -d HEAD
-git checkout -b $PACKAGE_RELEASE_TAG
-rm -rf $TMP_DIR/*
-cp $APP_DIR/$PACKAGE_NAME$EXECUTABLE_SUFFIX $TMP_DIR
-cp -R $APP_DIR/$PACKAGE_NAME $TMP_DIR
+git checkout -b "$PACKAGE_RELEASE_TAG"
+rm -rf "${TMP_DIR:?}/"*
+cp "$APP_DIR/$PACKAGE_NAME$EXECUTABLE_SUFFIX" "$TMP_DIR"
+cp -R "$APP_DIR/$PACKAGE_NAME" "$TMP_DIR"
 git add -A
 git commit -m "Publishing $PACKAGE_RELEASE_TAG"
-git push $RELEASE_REPOSITORY $PACKAGE_RELEASE_TAG
-rm -rf $TMP_DIR
+git push "$RELEASE_REPOSITORY" "$PACKAGE_RELEASE_TAG"
+rm -rf "$TMP_DIR"

@@ -32,12 +32,10 @@ if [[ -d "$HELP_FILE" ]]; then
     # If there's a help file available for this directory, then show it.
     if [[ -f "$HELP_FILE/.help" ]]; then
         cat "$HELP_FILE/.help"
-        echo ""
     fi
 
     echo ""
-    echo -e "${COLOR_MAGENTA}Commands${COLOR_NORMAL}"
-    echo ""
+    echo -e "${COLOR_MAGENTA}Commands:${COLOR_NORMAL}"
 
     for file in "$HELP_FILE"/*; do
         cmd=$(basename "$file")

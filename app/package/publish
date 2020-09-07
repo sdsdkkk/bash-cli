@@ -23,7 +23,7 @@ fi
 if [[ -f "$APP_DIR/$PACKAGE_NAME/BUILD" ]]; then
     PACKAGE_RELEASE_TAG=$(head -n 1 "$APP_DIR/$PACKAGE_NAME/BUILD")
 
-    if [[ ! -z "$TARGET_PLATFORM" ]]; then
+    if [[ -n "$TARGET_PLATFORM" ]]; then
         PACKAGE_RELEASE_TAG="$PACKAGE_RELEASE_TAG-$TARGET_PLATFORM"
     fi
 

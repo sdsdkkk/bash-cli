@@ -15,7 +15,7 @@ mkdir -p "$CUR_DIR/$PRJ_NAME/blueprint"
 mkdir -p "$CUR_DIR/$PRJ_NAME/files"
 mkdir -p "$CUR_DIR/$PRJ_NAME/framework"
 mkdir -p "$CUR_DIR/$PRJ_NAME/playbook"
-cp $(ls -alh $HOME/.local/bin/bcl | awk '{print $11}' | sed 's/\/cli/\/framework\//g')* "$CUR_DIR/$PRJ_NAME/framework"
+cp $(ls -alh "$HOME"/.local/bin/bcl | awk '{print $11}' | sed 's/\/cli/\/framework\//g')* "$CUR_DIR/$PRJ_NAME/framework"
 
 cat > "$CUR_DIR/$PRJ_NAME/BUILD" <<EOC
 $PRJ_NAME-v0.0.0-release
@@ -42,7 +42,7 @@ else
 fi
 
 mkdir -p "$APP_DIR/autocomplete"
-cp $(ls -alh $HOME/.local/bin/bcl | awk '{print $11}' | sed 's/\/cli/\/autocomplete\//g')* "$APP_DIR/autocomplete"
+cp $(ls -alh "$HOME"/.local/bin/bcl | awk '{print $11}' | sed 's/\/cli/\/autocomplete\//g')* "$APP_DIR/autocomplete"
 
 sed -i.bak "s/{{ project_name }}/$PRJ_NAME/g" "$APP_DIR/autocomplete/apply"
 rm "$APP_DIR/autocomplete/apply.bak"

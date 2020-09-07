@@ -18,7 +18,7 @@ fi
 CMD_DIR="$APP_DIR"
 
 if [[ $# -gt 1 ]]; then
-    for i in $(($#-1)); do
+    for i in $(("$#"-1)); do
         DIR=${!i}
         CMD_DIR="$CMD_DIR/$DIR"
         if [[ ! -d "$CMD_DIR" ]]; then

@@ -19,7 +19,7 @@ Install:
 ## Installation
 
 ```bash
-curl -L -s https://raw.githubusercontent.com/BrunIF/bcl/master/install | bash
+curl -L -s https://git.io/JU3Fy | bash
 ```
 
 Enable autocomplete for zsh

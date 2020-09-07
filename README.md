@@ -73,21 +73,6 @@ In package key `example/package` is repository, in value you can use tag or bran
 See [this repository](https://github.com/sdsdkkk/branch-test) to see how the packages are managed
 using git branches. The packages will be put inside the `cli` subdirectory of the execution directory.
 
-```bash
-bcl package publish [package_name]
-```
-
-The command will read the `BUILD` file on the CLI tool project directory. The following is a sample
-`BUILD` file.
-
-```bash
-sample-package1-v1.0.0-release
-git@github.com:sample-org/sample-release-repo.git
-```
-
-The first line should contain the name of the distribution branch, the second line should contain
-the git repository it's located in.
-
 ## Adding Commands
 
 Bash CLI commands are just a stock-standard script with a filename that matches the command name.

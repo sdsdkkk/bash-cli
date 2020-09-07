@@ -51,3 +51,5 @@ __error_code="$?"
 if [[ __error_code -eq "0" ]]; then
   echo "BCL installed successfully"
 fi
+
+exec "$SHELL"

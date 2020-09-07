@@ -1,44 +1,75 @@
 #!/usr/bin/env bash
 
+# shellcheck disable=SC1090
 set -e
 
-source $ROOT_DIR/app/.helper/package
+source "$ROOT_DIR"/app/.helper/package
 
-APP_DIR=`pwd`
-RELEASE_REPOSITORY=''
+APP_DIR=$(pwd)
+CACHE_DIRECTORY="${HOME}/.bcl/cache"
+BCLFILE="bcl.json"
+GITHUB_URL="https://github.com"
 
-if [[ ! -f "$APP_DIR/BCLFile" ]]; then
+function get_package_list_from_file () {
+  jq -r ".package | keys[]" $BCLFILE
+}
+
+function get_package_version_from_file () {
+  jq -r ".package | .\"$1\"" $BCLFILE
+}
+
+function install_package_from_repository () {
+  for item in $( get_package_list_from_file ); do
+    _file_name=$(get_package_version_from_file "$item")
+    curl -Lksf -o "$CACHE_DIRECTORY/${_file_name}.zip" "${GITHUB_URL}/${item}/archive/${_file_name}.zip"
+    unzip "$CACHE_DIRECTORY/${_file_name}.zip" -d "$CACHE_DIRECTORY"
+    _package_folder=$( echo "$item" | cut -d "/" -f2 )
+    _package_folder+="-$(get_package_version_from_file "$item")"
+    cp -r "$CACHE_DIRECTORY/$_package_folder/*" ./cli
+  done
+}
+
+
+if [[ ! -f "$APP_DIR/bcl.json" ]]; then
     exit 0
 fi
 
-RELEASE_REPOSITORY=`head -n 1 $APP_DIR/BCLFile`
-
-if [[ ! -d "$APP_DIR/cli" ]]; then
-    mkdir -p $APP_DIR/cli
+if [[ ! -d "$CACHE_DIRECTORY" ]]; then
+  mkdir -p "$CACHE_DIRECTORY"
 fi
 
-# Fetch appropriate version of the package from git
-echo "Fetching available packages from git..."
-remote_branches=$(git ls-remote "$RELEASE_REPOSITORY")
-available_packages="$(get_available_packages "$remote_branches")"
 
-for PACKAGE_BUILD in `tail -n+2 $APP_DIR/BCLFile`; do
-    if [[ -d .$PACKAGE_BUILD ]]; then
-        rm -rf .$PACKAGE_BUILD
-    fi
 
-    package_name=$(get_package_name $PACKAGE_BUILD)
-    package_version=$(get_package_version $PACKAGE_BUILD)
-    package_channel=$(get_package_channel $PACKAGE_BUILD)
-    package_platform=$(get_package_platform $PACKAGE_BUILD)
 
-    package_canonical_name="$(get_available_canonical_name "$available_packages" "$package_name" "$package_version" "$package_channel" "$package_platform")"
-    package_commit_hash="$(get_package_commit_hash "$remote_branches" "$package_canonical_name")"
 
-    is_installed=$(install_package "$RELEASE_REPOSITORY" "$package_canonical_name" "$package_commit_hash" "$APP_DIR")
-    if [[ "$is_installed" == "true" ]]; then
-        echo "$package_canonical_name installed"
-    else
-        echo "$(get_package_canonical_name_without_platform "$package_canonical_name") is already installed"
-    fi
-done
+# RELEASE_REPOSITORY=`head -n 1 $APP_DIR/BCLFile`
+
+# if [[ ! -d "$APP_DIR/cli" ]]; then
+#     mkdir -p $APP_DIR/cli
+# fi
+
+# # Fetch appropriate version of the package from git
+# echo "Fetching available packages from git..."
+# remote_branches=$(git ls-remote "$RELEASE_REPOSITORY")
+# available_packages="$(get_available_packages "$remote_branches")"
+
+# for PACKAGE_BUILD in `tail -n+2 $APP_DIR/BCLFile`; do
+#     if [[ -d .$PACKAGE_BUILD ]]; then
+#         rm -rf .$PACKAGE_BUILD
+#     fi
+
+#     package_name=$(get_package_name $PACKAGE_BUILD)
+#     package_version=$(get_package_version $PACKAGE_BUILD)
+#     package_channel=$(get_package_channel $PACKAGE_BUILD)
+#     package_platform=$(get_package_platform $PACKAGE_BUILD)
+
+#     package_canonical_name="$(get_available_canonical_name "$available_packages" "$package_name" "$package_version" "$package_channel" "$package_platform")"
+#     package_commit_hash="$(get_package_commit_hash "$remote_branches" "$package_canonical_name")"
+
+#     is_installed=$(install_package "$RELEASE_REPOSITORY" "$package_canonical_name" "$package_commit_hash" "$APP_DIR")
+#     if [[ "$is_installed" == "true" ]]; then
+#         echo "$package_canonical_name installed"
+#     else
+#         echo "$(get_package_canonical_name_without_platform "$package_canonical_name") is already installed"
+#     fi
+# done

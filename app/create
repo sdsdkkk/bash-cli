@@ -1,15 +1,16 @@
 #!/usr/bin/env bash
 
+__parameters_count="$#"
 if [ $# == 0 ]; then
     exit 3
 fi
 
-APP_DIR=`pwd`
-if [[ -d "$APP_DIR/app" && -f "$APP_DIR/app/.bash_cli" ]]; then
+APP_DIR=$(pwd)
+if [[ -d "$APP_DIR/app" && -f "$APP_DIR/app/.version" ]]; then
     APP_DIR="$APP_DIR/app"
 fi
 
-if [[ ! -f "$APP_DIR/.bash_cli" ]]; then
+if [[ ! -f "$APP_DIR/.version" ]]; then
     >&2 echo -e "\033[31mYou are not within a Bash CLI project\033[39m"
     >&2 echo "Please change your directory to a valid project or run the init command to set one up."
     exit 1
@@ -18,7 +19,8 @@ fi
 CMD_DIR="$APP_DIR"
 
 if [[ $# -gt 1 ]]; then
-    for i in $(($#-1)); do
+    __parameters_count=$((__parameters_count-1))
+    for i in $__parameters_count ; do
         DIR=${!i}
         CMD_DIR="$CMD_DIR/$DIR"
         if [[ ! -d "$CMD_DIR" ]]; then
@@ -52,4 +54,4 @@ ARGS  - The arguments you wish to provide to this command
 TODO: Fill out the help information for this command.
 EOT
 
-echo -e "\033[32mCommand \033[36m$@\033[32m created successfully\033[39m"
+echo -e "\033[32mCommand \033[36m$*\033[32m created successfully\033[39m"

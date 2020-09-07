@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-PRJ_NAME="{{ project_name }}"
+PRJ_NAME="__project_name__"
 SUFFIX="ctl"
 
 if [[ -f "$HOME/.bash_completion.d/$PRJ_NAME$SUFFIX" ]]; then

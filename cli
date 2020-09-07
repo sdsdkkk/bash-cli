@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# shellcheck disable=SC1090
+
 # Minimum Bash version. Centos 7 Docker container comes with 4.2.46(2)-release,
 # and we will use that as the standard.
 MINIMAL_BASH_VERSION="4.2.0"
@@ -15,13 +17,14 @@ check_dependencies() {
 # _check_bash_version returns non-zero code when the bash version used is
 # too old
 _check_bash_version() {
-    local lowest_vesion=$(echo -e "$BASH_VERSION\n$MINIMAL_BASH_VERSION" | sort -V | head -n1)
+    lowest_vesion=$(echo -e "$BASH_VERSION\n$MINIMAL_BASH_VERSION" | sort -V | head -n1)
+    local lowest_vesion
 
     if [ "$lowest_vesion" == "$BASH_VERSION" ]; then
         echo "Installed Bash version is too old (installed=$BASH_VERSION," \
             "required=$MINIMAL_BASH_VERSION)" >&2
 
-        if [ $(uname -s) == "Darwin" ]; then
+        if [ "$(uname -s)" == "Darwin" ]; then
             echo "You can install newer Bash on Mac OS with:" >&2
             echo "  $ brew install bash" >&2
             echo "  $ sudo bash -c 'echo /usr/local/bin/bash >> /etc/shells'" >&2
@@ -37,7 +40,7 @@ _check_bash_version() {
 _check_coreutils() {
     local readlink_bin="readlink"
 
-    if [ $(uname -s) == "Darwin" ]; then
+    if [ "$(uname -s)" == "Darwin" ]; then
         readlink_bin="greadlink"
     fi
 
@@ -46,9 +49,9 @@ _check_coreutils() {
         echo "System package \"coreutils\" is not installed." \
             "You can install coreutils with:" >&2
 
-        if [ $(uname -s) == "Linux" ]; then
+        if [ "$(uname -s)" == "Linux" ]; then
             echo "  $ sudo apt-get install coreutils" >&2
-        elif [ $(uname -s) == "Darwin" ]; then
+        elif [ "$(uname -s)" == "Darwin" ]; then
             echo "  $ brew install coreutils" >&2
         fi
 
@@ -59,7 +62,7 @@ _check_coreutils() {
 # _check_grep returns non-zero code if GNU grep is not installed via brew in
 # Mac OS
 _check_grep() {
-    if [ $(uname -s) != "Darwin" ]; then
+    if [ "$(uname -s)" != "Darwin" ]; then
         return 0
     fi
 
@@ -80,10 +83,10 @@ fi
 # _readlink wraps readlink in Linux or greadlink in Mac OS. We need this here
 # since we can't import app/.helper/system yet.
 _readlink() {
-    if [ $(uname -s) == "Linux" ]; then
+    if [ "$(uname -s)" == "Linux" ]; then
         readlink "$@"
         return $?
-    elif [ $(uname -s) == "Darwin" ]; then
+    elif [ "$(uname -s)" == "Darwin" ]; then
         greadlink "$@"
         return $?
     fi
@@ -91,10 +94,11 @@ _readlink() {
     echo "Invalid kernel name $(uname -s)" && return 1
 }
 
-export ROOT_DIR=`dirname "$(_readlink -f $0)"`
-CLI_ENTRYPOINT=`basename $0`
+ROOT_DIR=$(dirname "$(_readlink -f "$0")")
+export ROOT_DIR
+CLI_ENTRYPOINT=$(basename "$0")
 
-. "$ROOT_DIR/utils"
+source "$ROOT_DIR/utils"
 
 # Locate the correct command to execute by looking through the app directory
 # for folders and files which match the arguments provided on the command line.
@@ -110,12 +114,12 @@ while [[ -d "$CMD_FILE" && $CMD_ARG_START -le $# ]]; do
         unset "ARGS[$((CMD_ARG_START-1))]"
         ARGS=("${ARGS[@]}")
 
-        "$ROOT_DIR/help" $0 ${ARGS[@]}
+        "$ROOT_DIR/help" "$0" "${ARGS[@]}"
         exit 3
     fi
 
     CMD_FILE="$CMD_FILE/${!CMD_ARG_START}"
-    CMD_ARG_START=$(($CMD_ARG_START+1))
+    CMD_ARG_START=$((CMD_ARG_START+1))
 done
 
 # Place the arguments for the command in their own list
@@ -126,16 +130,16 @@ CMD_ARGS=("${@:CMD_ARG_START}")
 # hasn't completed their command, so we'll show them the help for that directory
 # to help them along.
 if [ -d "$CMD_FILE" ]; then
-    "$ROOT_DIR/help" $0 $@
+    "$ROOT_DIR/help" "$0" "$@"
     exit 3
 fi
 
 # If we didn't couldn't find the exact command the user entered then warn them
 # about it, and try to be helpful by displaying help for that directory.
 if [[ ! -f "$CMD_FILE" ]]; then
-    "$ROOT_DIR/help" $0 ${@:1:$(($CMD_ARG_START-1))}
-    >&2 echo -e "\033[31mWe could not find the command \033[36m$CLI_ENTRYPOINT ${@:1:$CMD_ARG_START}\033[39m"
-    >&2 echo -e "To help out, we've shown you the help docs for \033[36m$CLI_ENTRYPOINT ${@:1:$(($CMD_ARG_START-1))}\033[39m"
+    "$ROOT_DIR/help" "$0" "${@:1:$((CMD_ARG_START-1))}"
+    >&2 echo -e "\033[31mWe could not find the command \033[36m$CLI_ENTRYPOINT ${*:1:CMD_ARG_START}\033[39m"
+    >&2 echo -e "To help out, we've shown you the help docs for \033[36m$CLI_ENTRYPOINT ${*:1:$((CMD_ARG_START-1))}\033[39m"
     exit 3
 fi
 
@@ -149,20 +153,20 @@ for arg in "${CMD_ARGS[@]}"; do
         CMD_ARGS=("${CMD_ARGS[@]}")
 
         # Pass the result to the help script for interrogation
-        "$ROOT_DIR/help" $0 ${@:1:$((CMD_ARG_START - 1))} ${CMD_ARGS[@]}
+        "$ROOT_DIR/help" "$0" "${@:1:$((CMD_ARG_START - 1))}" "${CMD_ARGS[@]}"
         exit 3
     fi
     arg_i=$((arg_i+1))
 done
 
 # Run the command and capture its exit code for introspection
-"$CMD_FILE" ${CMD_ARGS[@]}
+"$CMD_FILE" "${CMD_ARGS[@]}"
 EXIT_CODE=$?
 
 # If the command exited with an exit code of 3 (our "show help" code)
 # then show the help documentation for the command.
 if [[ $EXIT_CODE == 3 ]]; then
-    "$ROOT_DIR/help" $0 $@
+    "$ROOT_DIR/help" "$0" "$@"
 fi
 
 # Exit with the same code as the command

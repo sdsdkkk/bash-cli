@@ -10,10 +10,10 @@ function cli_dir() {
 
     # _readlink wraps readlink in Linux or greadlink in Mac OS
     function _readlink() {
-        if [ $(kernel) == "Linux" ]; then
+        if [ "$(kernel)" == "Linux" ]; then
             readlink "$@"
             return $?
-        elif [ $(kernel) == "Darwin" ]; then
+        elif [ "$(kernel)" == "Darwin" ]; then
             greadlink "$@"
             return $?
         fi
@@ -24,11 +24,11 @@ function cli_dir() {
 
     # The additional ../../../ are required since this file is located three
     # directories down from from the desired directory
-    _readlink -f "$(dirname "$(_readlink -f $0)")/../../../"
+    _readlink -f "$(dirname "$(_readlink -f "$0")")/../../../"
 }
 
 CLI_DIR="$(cli_dir)"
-PRJ_NAME="{{ project_name }}"
+PRJ_NAME="__project_name__"
 SUFFIX="ctl"
 
 cat > "$HOME/.bash_completion.d/$PRJ_NAME$SUFFIX" <<EOC

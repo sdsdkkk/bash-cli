@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
 
+# shellcheck disable=SC1090
+
 set -e
 
-source $ROOT_DIR/app/.helper/package
-source $ROOT_DIR/app/.helper/system
+source "$ROOT_DIR/app/.helper/package"
+source "$ROOT_DIR/app/.helper/system"
 
 INSTALL_DIRECTORY="$HOME/.bcl"
 
@@ -24,10 +26,10 @@ parse_args() {
 main() {
     parse_args "$@"
 
-    package_name=$(get_package_name $PACKAGE)
-    package_version=$(get_package_version $PACKAGE)
-    package_channel=$(get_package_channel $PACKAGE)
-    package_platform=$(get_package_platform $PACKAGE)
+    package_name=$(get_package_name "$PACKAGE")
+    package_version=$(get_package_version "$PACKAGE")
+    package_channel=$(get_package_channel "$PACKAGE")
+    package_platform=$(get_package_platform "$PACKAGE")
 
     # Fetch appropriate version of the package from git
     echo "Fetching available versions of $package_name..."

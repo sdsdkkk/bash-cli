@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+BCL_INSTALL_DIR="$HOME/.bcl"
+
 echo "Install BCL"
 
 __exit_code=0
@@ -38,6 +40,16 @@ echo "Download latest version of BCL"
 rm -rf /tmp/bcl*
 curl -L -s https://github.com/BrunIF/bcl/archive/master.zip -o /tmp/bcl.zip
 cd "/tmp" || exit
-unzip bcl.zip
+[[ ! -d "$BCL_INSTALL_DIR" ]] && mkdir -p "$BCL_INSTALL_DIR"
+unzip -q bcl.zip
 cd "/tmp/bcl-master" || exit
+cp -r "./" "$BCL_INSTALL_DIR"
+cd "$BCL_INSTALL_DIR" || exit
 ./cli setup install
+__error_code="$?"
+
+if [[ __error_code -eq "0" ]]; then
+  echo "BCL installed successfully"
+fi
+
+exec "$SHELL"

@@ -56,17 +56,19 @@ repositories. This is useful to have an internal tooling distribution system in 
 bcl package install
 ```
 
-The package installation command will read a file named `BCLFile` from the directory it's run on.
+The package installation command will read a file named `bcl.json` from the directory it's run on.
 Here's an example `BCLFile`.
 
-```bash
-git@github.com:sample-org/sample-release-repo.git
-sample-package1-v1.0.0-release
-sample-package2-v1.0.0-release
+```json
+{
+  "package": {
+          "example/package": "1.0",
+          "example/package1": "master"
+  }
+}
 ```
 
-The command will read the `BCLFile`, take the first line as the source package distribution
-repository and iterate the rest of the lines as the release branch name of the repository.
+In package key `example/package` is repository, in value you can use tag or branch from repository.
 
 See [this repository](https://github.com/sdsdkkk/branch-test) to see how the packages are managed
 using git branches. The packages will be put inside the `cli` subdirectory of the execution directory.

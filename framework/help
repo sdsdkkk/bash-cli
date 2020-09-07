@@ -4,17 +4,17 @@
 
 CLI_ENTRYPOINT=$(basename "$1")
 
-source "$CLI_DIR/{{ project_name }}/framework/utils"
+source "$CLI_DIR/__project_name__/framework/utils"
 
 # If we don't have any additional help arguments, then show the app's
 # header as well.
 if [ $# == 0 ]; then
-    bcli_show_header "$CLI_DIR/{{ project_name }}/app"
+    bcli_show_header "$CLI_DIR/__project_name__/app"
 fi
 
 # Locate the correct level to display the helpfile for, either a directory
 # with no further arguments, or a command file.
-HELP_FILE="$CLI_DIR/{{ project_name }}/app/"
+HELP_FILE="$CLI_DIR/__project_name__/app/"
 HELP_ARG_START=2
 while [[ -d "$HELP_FILE" && $HELP_ARG_START -le $# ]]; do
     HELP_FILE="$HELP_FILE/${!HELP_ARG_START}"

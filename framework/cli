@@ -2,7 +2,7 @@
 
 # shellcheck disable=SC1090
 
-PRJ_NAME="{{ project_name }}"
+PRJ_NAME="__project_name__"
 APP_DIR="$CLI_DIR/$PRJ_NAME"
 ROOT_DIR="$APP_DIR/framework"
 CLI_ENTRYPOINT=$(basename "$0")

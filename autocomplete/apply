@@ -28,7 +28,7 @@ function cli_dir() {
 }
 
 CLI_DIR="$(cli_dir)"
-PRJ_NAME="{{ project_name }}"
+PRJ_NAME="__project_name__"
 SUFFIX="ctl"
 
 cat > "$HOME/.bash_completion.d/$PRJ_NAME$SUFFIX" <<EOC

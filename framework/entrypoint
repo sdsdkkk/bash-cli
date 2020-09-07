@@ -36,10 +36,10 @@ function main() {
     CLI_DIR="$(cli_dir)"
     export CLI_DIR
 
-    source "$CLI_DIR/{{ project_name }}/framework/cli"
-    source "$CLI_DIR/{{ project_name }}/framework/complete"
-    source "$CLI_DIR/{{ project_name }}/framework/help"
-    source "$CLI_DIR/{{ project_name }}/framework/utils"
+    source "$CLI_DIR/__project_name__/framework/cli"
+    source "$CLI_DIR/__project_name__/framework/complete"
+    source "$CLI_DIR/__project_name__/framework/help"
+    source "$CLI_DIR/__project_name__/framework/utils"
 
     cli "$@"
 }

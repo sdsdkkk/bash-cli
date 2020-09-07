@@ -8,6 +8,7 @@ CUR_DIR=$(pwd)
 APP_DIR="$CUR_DIR"
 PRJ_NAME="${!#}"
 SUFFIX="ctl"
+__bcl_path=$( ls -alh "$HOME"/.local/bin/bcl )
 
 # get_value_from_user "Question for a user" "default answere"
 # User value in variable "$_user_value"
@@ -23,20 +24,19 @@ function get_value_from_user () {
 
 mkdir -p "$CUR_DIR/$PRJ_NAME/files"
 mkdir -p "$CUR_DIR/$PRJ_NAME/framework"
-__bcl_path=$( ls -alh "$HOME"/.local/bin/bcl )
 __bcl_framework_path=$( echo "$__bcl_path" | awk '{print $11}' | sed 's/\/cli/\/framework\//g')
 cp "$__bcl_framework_path"* "$CUR_DIR/$PRJ_NAME/framework"
 
-sed -i.bak "s/{{ function_name }}/_bash_cli_$PRJ_NAME$SUFFIX/g" "$CUR_DIR/$PRJ_NAME/framework/complete"
+sed -i.bak "s/function_name/_bash_cli_$PRJ_NAME$SUFFIX/g" "$CUR_DIR/$PRJ_NAME/framework/complete"
 rm "$CUR_DIR/$PRJ_NAME/framework/complete.bak"
 
-sed -i.bak "s/{{ project_name }}/$PRJ_NAME/g" "$CUR_DIR/$PRJ_NAME/framework/complete"
+sed -i.bak "s/__project_name__/$PRJ_NAME/g" "$CUR_DIR/$PRJ_NAME/framework/complete"
 rm "$CUR_DIR/$PRJ_NAME/framework/complete.bak"
 
-sed -i.bak "s/{{ project_name }}/$PRJ_NAME/g" "$CUR_DIR/$PRJ_NAME/framework/help"
+sed -i.bak "s/__project_name__/$PRJ_NAME/g" "$CUR_DIR/$PRJ_NAME/framework/help"
 rm "$CUR_DIR/$PRJ_NAME/framework/help.bak"
 
-sed -i.bak "s/{{ project_name }}/$PRJ_NAME/g" "$CUR_DIR/$PRJ_NAME/framework/cli"
+sed -i.bak "s/__project_name__/$PRJ_NAME/g" "$CUR_DIR/$PRJ_NAME/framework/cli"
 rm "$CUR_DIR/$PRJ_NAME/framework/cli.bak"
 
 if [[ -d "$CUR_DIR/$PRJ_NAME/app" ]]; then
@@ -50,10 +50,10 @@ mkdir -p "$APP_DIR/autocomplete"
 __bcl_autocomplete_path=$( echo "$__bcl_path" | awk '{print $11}' | sed 's/\/cli/\/autocomplete\//g')
 cp "$__bcl_autocomplete_path"* "$APP_DIR/autocomplete"
 
-sed -i.bak "s/{{ project_name }}/$PRJ_NAME/g" "$APP_DIR/autocomplete/apply"
+sed -i.bak "s/__project_name__/$PRJ_NAME/g" "$APP_DIR/autocomplete/apply"
 rm "$APP_DIR/autocomplete/apply.bak"
 
-sed -i.bak "s/{{ project_name }}/$PRJ_NAME/g" "$APP_DIR/autocomplete/remove"
+sed -i.bak "s/__project_name__/$PRJ_NAME/g" "$APP_DIR/autocomplete/remove"
 rm "$APP_DIR/autocomplete/remove.bak"
 
 get_value_from_user "Enter Author name" "$(whoami)"
@@ -84,7 +84,7 @@ fi
 
 # Render the *ctl entrypoint
 mv "$CUR_DIR/$PRJ_NAME/framework/entrypoint" "$CUR_DIR/$PRJ_NAME$SUFFIX"
-sed -i.bak "s/{{ project_name }}/$PRJ_NAME/g" "$CUR_DIR/$PRJ_NAME$SUFFIX"
+sed -i.bak "s/__project_name__/$PRJ_NAME/g" "$CUR_DIR/$PRJ_NAME$SUFFIX"
 rm "$CUR_DIR/$PRJ_NAME$SUFFIX.bak"
 
 chmod +x "$CUR_DIR/$PRJ_NAME$SUFFIX"

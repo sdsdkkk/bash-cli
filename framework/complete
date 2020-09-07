@@ -19,10 +19,10 @@ _readlink() {
     echo "Invalid kernel name $(kernel)" && return 1
 }
 
-function {{ function_name }}() {
+function function_name () {
     local root_dir;
-    local project_name={{ project_name }};
-    root_dir=`dirname "$(_readlink -f "$(which ${COMP_WORDS[0]})")"`
+    local project_name=__project_name__;
+    root_dir=$(dirname "$(_readlink -f "$(which "${COMP_WORDS[0]}")")")
     root_dir="$root_dir/$project_name"
 
     # If the project directory is not found, then the command might be called as
@@ -48,13 +48,13 @@ function {{ function_name }}() {
 
     while [[ -d "$cmd_file" && $cmd_arg_start -le $COMP_CWORD ]]; do
         cmd_file="$cmd_file/${COMP_WORDS[cmd_arg_start]}"
-        cmd_arg_start=$(($cmd_arg_start+1))
+        cmd_arg_start=$((cmd_arg_start+1))
     done
 
     # If we've found something which doesn't exist, then let's
     # look at its containing directory for info.
     if [[ ! -e "$cmd_file" ]]; then
-        cmd_file=`dirname $cmd_file`
+        cmd_file=$(dirname "$cmd_file")
     fi
 
     # If we found a command, then suggest the `--help` argument
@@ -62,26 +62,27 @@ function {{ function_name }}() {
     if [[ -f "$cmd_file" ]]; then
         # Check if we've already got a `--help`, don't output anything
         # if we do.
-        for i in `seq $cmd_arg_start $COMP_CWORD`; do
+        for i in $(seq "$cmd_arg_start" "$COMP_CWORD") ; do
             if [[ "${COMP_WORDS[$i]}" == "--help" ]]; then
                 COMPREPLY=()
                 return
             fi
         done
 
-        COMPREPLY=(`compgen -W '--help' -- "$curr_arg"`)
+        COMPREPLY=( "$(compgen -W '--help' -- "$curr_arg")" )
     # If we found a directory, then show all the commands which are
     # available within it, as well as the `help` virtual command.
     elif [ -d "$cmd_file" ]; then
         local opts=("help")
-        local file_list=(`find $cmd_file/ -maxdepth 1 ! -path $cmd_file/ ! -iname '*.*' -print`)
+        file_list=$(find "$cmd_file"/ -maxdepth 1 ! -path "$cmd_file"/ ! -iname '*.*' -print)
+        local file_list
 
         for file in "${file_list[@]}"; do
-            opts=("${opts[@]}" `basename $file`)
+            opts=("${opts[@]}" "$(basename "$file")")
         done
 
         IFS="
         "
-        COMPREPLY=(`compgen -W "$(printf '%s\n' "${opts[@]}")" -- "$curr_arg"`)
+        COMPREPLY=( "$(compgen -W "$(printf '%s\n' "${opts[@]}")" -- "$curr_arg")" )
     fi
 }

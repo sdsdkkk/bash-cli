@@ -217,6 +217,29 @@ install_package() {
     echo "true"
 }
 
+post_install() {
+  local package_canonical_name=$1
+  local install_dir=$2
+
+  package_name=$(get_package_name $package_canonical_name)
+  local post_install_script="$install_dir/cli/$package_name/scripts/post-install.sh"
+
+  if [[ -f "$post_install_script" ]]; then
+    echo "Executing Post Install Script for $package_canonical_name"
+
+    set +e
+
+    bash $post_install_script
+    if [[ $? -ne 0 ]]; then
+      echo -e "\033[0;31m[ ERROR ]\033[0m Failed to execute Post Install script."
+    else
+      echo "Finished Executing Post Install Script."
+    fi
+
+    set -e
+  fi
+}
+
 # cache_package caches a package to $CACHE_DIRECTORY, skipping if the package
 # is already cached.
 #

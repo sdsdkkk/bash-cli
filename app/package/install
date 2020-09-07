@@ -47,36 +47,3 @@ if [[ ! -d "$CACHE_DIRECTORY" ]]; then
 fi
 
 install_package_from_repository
-
-
-# RELEASE_REPOSITORY=`head -n 1 $APP_DIR/BCLFile`
-
-# if [[ ! -d "$APP_DIR/cli" ]]; then
-#     mkdir -p $APP_DIR/cli
-# fi
-
-# # Fetch appropriate version of the package from git
-# echo "Fetching available packages from git..."
-# remote_branches=$(git ls-remote "$RELEASE_REPOSITORY")
-# available_packages="$(get_available_packages "$remote_branches")"
-
-# for PACKAGE_BUILD in `tail -n+2 $APP_DIR/BCLFile`; do
-#     if [[ -d .$PACKAGE_BUILD ]]; then
-#         rm -rf .$PACKAGE_BUILD
-#     fi
-
-#     package_name=$(get_package_name $PACKAGE_BUILD)
-#     package_version=$(get_package_version $PACKAGE_BUILD)
-#     package_channel=$(get_package_channel $PACKAGE_BUILD)
-#     package_platform=$(get_package_platform $PACKAGE_BUILD)
-
-#     package_canonical_name="$(get_available_canonical_name "$available_packages" "$package_name" "$package_version" "$package_channel" "$package_platform")"
-#     package_commit_hash="$(get_package_commit_hash "$remote_branches" "$package_canonical_name")"
-
-#     is_installed=$(install_package "$RELEASE_REPOSITORY" "$package_canonical_name" "$package_commit_hash" "$APP_DIR")
-#     if [[ "$is_installed" == "true" ]]; then
-#         echo "$package_canonical_name installed"
-#     else
-#         echo "$(get_package_canonical_name_without_platform "$package_canonical_name") is already installed"
-#     fi
-# done

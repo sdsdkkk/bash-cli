@@ -3,10 +3,10 @@
 # _readlink wraps readlink in Linux or greadlink in Mac OS. We need this here
 # since we can't import app/.helper/system yet.
 _readlink() {
-    if [ $(uname -s) == "Linux" ]; then
+    if [ "$(uname -s)" == "Linux" ]; then
         readlink "$@"
         return $?
-    elif [ $(uname -s) == "Darwin" ]; then
+    elif [ "$(uname -s)" == "Darwin" ]; then
         greadlink "$@"
         return $?
     fi
@@ -16,7 +16,7 @@ _readlink() {
 
 function _bash_cli() {
     local root_dir;
-    root_dir=`dirname "$(_readlink -f "$(which ${COMP_WORDS[0]})")"`
+    root_dir=$(dirname "$(_readlink -f "$(which "${COMP_WORDS[0]}")")")
 
     local curr_arg;
     curr_arg="${COMP_WORDS[COMP_CWORD]}"
@@ -35,13 +35,13 @@ function _bash_cli() {
 
     while [[ -d "$cmd_file" && $cmd_arg_start -le $COMP_CWORD ]]; do
         cmd_file="$cmd_file/${COMP_WORDS[cmd_arg_start]}"
-        cmd_arg_start=$(($cmd_arg_start+1))
+        cmd_arg_start=$((cmd_arg_start+1))
     done
 
     # If we've found something which doesn't exist, then let's
     # look at its containing directory for info.
     if [[ ! -e "$cmd_file" ]]; then
-        cmd_file=`dirname $cmd_file`
+        cmd_file=$(dirname "$cmd_file")
     fi
 
     # If we found a command, then suggest the `--help` argument
@@ -49,26 +49,27 @@ function _bash_cli() {
     if [[ -f "$cmd_file" ]]; then
         # Check if we've already got a `--help`, don't output anything
         # if we do.
-        for i in `seq $cmd_arg_start $COMP_CWORD`; do
+        for i in $(seq $cmd_arg_start "$COMP_CWORD"); do
             if [[ "${COMP_WORDS[$i]}" == "--help" ]]; then
                 COMPREPLY=()
                 return
             fi
         done
 
-        COMPREPLY=(`compgen -W '--help' -- "$curr_arg"`)
+        COMPREPLY=( "$(compgen -W '--help' -- "$curr_arg")" )
     # If we found a directory, then show all the commands which are
     # available within it, as well as the `help` virtual command.
     elif [ -d "$cmd_file" ]; then
         local opts=("help")
-        local file_list=(`find $cmd_file/ -maxdepth 1 ! -path $cmd_file/ ! -iname '*.*' -print`)
+        file_list=$(find "$cmd_file"/ -maxdepth 1 ! -path "$cmd_file"/ ! -iname '*.*' -print)
+        local file_list
 
         for file in "${file_list[@]}"; do
-            opts=("${opts[@]}" `basename $file`)
+            opts=("${opts[@]}" "$(basename "$file")")
         done
 
         IFS="
         "
-        COMPREPLY=(`compgen -W "$(printf '%s\n' "${opts[@]}")" -- "$curr_arg"`)
+        COMPREPLY=( "$(compgen -W "$(printf '%s\n' "${opts[@]}")" -- "$curr_arg")" )
     fi
 }

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# shellcheck disable=SC1090,SC2145
+# shellcheck disable=SC1090
 
 PRJ_NAME="{{ project_name }}"
 APP_DIR="$CLI_DIR/$PRJ_NAME"
@@ -47,8 +47,8 @@ fi
 # about it, and try to be helpful by displaying help for that directory.
 if [[ ! -f "$CMD_FILE" ]]; then
     "$ROOT_DIR/help" "$0" "${@:1:$((CMD_ARG_START-1))}"
-    >&2 echo -e "\033[31mWe could not find the command \033[36m$CLI_ENTRYPOINT ${@:1:CMD_ARG_START}\033[39m"
-    >&2 echo -e "To help out, we've shown you the help docs for \033[36m$CLI_ENTRYPOINT ${@:1:$((CMD_ARG_START-1))}\033[39m"
+    >&2 echo -e "\033[31mWe could not find the command \033[36m$CLI_ENTRYPOINT ${*:1:CMD_ARG_START}\033[39m"
+    >&2 echo -e "To help out, we've shown you the help docs for \033[36m$CLI_ENTRYPOINT ${*:1:$((CMD_ARG_START-1))}\033[39m"
     exit 3
 fi
 

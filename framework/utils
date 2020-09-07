@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# shellcheck disable=2034
+
 COLOR_BLACK="\033[30m"
 COLOR_RED="\033[31m"
 COLOR_GREEN="\033[32m"
@@ -32,10 +34,10 @@ kernel() {
 
 # _readlink wraps readlink in Linux or greadlink in Mac OS
 function _readlink() {
-    if [ $(kernel) == "Linux" ]; then
+    if [ "$(kernel)" == "Linux" ]; then
         readlink "$@"
         return $?
-    elif [ $(kernel) == "Darwin" ]; then
+    elif [ "$(kernel)" == "Darwin" ]; then
         greadlink "$@"
         return $?
     fi
@@ -46,10 +48,10 @@ function _readlink() {
 
 # _grep wraps grep in Linux or ggrep in Mac OS
 _grep() {
-    if [ $(kernel) == "Linux" ]; then
+    if [ "$(kernel)" == "Linux" ]; then
         grep "$@"
         return $?
-    elif [ $(kernel) == "Darwin" ]; then
+    elif [ "$(kernel)" == "Darwin" ]; then
         ggrep "$@"
         return $?
     fi

@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# shellcheck disable=1090
+
 set -e
 
 # cli_dir returns absolute (non-symlink) path to the directory containing
@@ -12,10 +14,10 @@ function cli_dir() {
 
     # _readlink wraps readlink in Linux or greadlink in Mac OS
     function _readlink() {
-        if [ $(kernel) == "Linux" ]; then
+        if [ "$(kernel)" == "Linux" ]; then
             readlink "$@"
             return $?
-        elif [ $(kernel) == "Darwin" ]; then
+        elif [ "$(kernel)" == "Darwin" ]; then
             greadlink "$@"
             return $?
         fi
@@ -24,14 +26,15 @@ function cli_dir() {
         return 1
     }
 
-    dirname "$(_readlink -f $0)"
+    dirname "$(_readlink -f "$0")"
 }
 
 function main() {
     # Expose CLI_DIR variable to subshells and child processes so they can
     # use it to determine path to the ctl directory for importing additional
     # scripts (e.g. the framework/utils script).
-    export CLI_DIR="$(cli_dir)"
+    CLI_DIR="$(cli_dir)"
+    export CLI_DIR
 
     source "$CLI_DIR/{{ project_name }}/framework/cli"
     source "$CLI_DIR/{{ project_name }}/framework/complete"

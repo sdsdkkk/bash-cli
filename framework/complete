@@ -8,10 +8,10 @@ kernel() {
 # _readlink wraps readlink in Linux or greadlink in Mac OS. We beed to define
 # this here since this script will be called directly by bash-autocomplete.
 _readlink() {
-    if [ $(kernel) == "Linux" ]; then
+    if [ "$(kernel)" == "Linux" ]; then
         readlink "$@"
         return $?
-    elif [ $(kernel) == "Darwin" ]; then
+    elif [ "$(kernel)" == "Darwin" ]; then
         greadlink "$@"
         return $?
     fi

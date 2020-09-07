@@ -57,7 +57,7 @@ bcl package install
 ```
 
 The package installation command will read a file named `bcl.json` from the directory it's run on.
-Here's an example `BCLFile`.
+Here's an example `bcl.json`.
 
 ```json
 {

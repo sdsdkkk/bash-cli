@@ -32,6 +32,7 @@ PRJ_NAME="__project_name__"
 SUFFIX="ctl"
 
 cat > "$HOME/.bash_completion.d/$PRJ_NAME$SUFFIX" <<EOC
+# shellcheck disable=SC1091
 source "$CLI_DIR/$PRJ_NAME/framework/complete"
 complete -F _bash_cli_$PRJ_NAME$SUFFIX $PRJ_NAME$SUFFIX
 EOC

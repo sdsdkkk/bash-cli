@@ -72,6 +72,7 @@ $_user_value
 EOT
 
 cat > "$HOME/.bash_completion.d/$PRJ_NAME$SUFFIX" <<EOC
+# shellcheck disable=SC1091
 source "$CUR_DIR/$PRJ_NAME/framework/complete"
 complete -F _bash_cli_$PRJ_NAME$SUFFIX $PRJ_NAME$SUFFIX
 EOC

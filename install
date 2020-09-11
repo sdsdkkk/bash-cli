@@ -21,7 +21,7 @@ check_requirenmets_app "unzip"
 check_requirenmets_app "curl"
 check_requirenmets_app "jq"
 
-if [[ "${BASH_VERSINFO[0]}" -gt 4 ]]; then
+if [[ "${BASH_VERSINFO[0]}" -ge 4 ]]; then
   echo "[*] BASH version is higher 4"
 else
   echo "[ ] BASH version need update"
